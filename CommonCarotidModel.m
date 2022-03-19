@@ -187,21 +187,23 @@ classdef CommonCarotidModel
             end
         end
 
-        function ep1mid = ep1midfromE(obj, E)
+        function ep1mid = ep1midfromP(obj, param, val)
+            obj.(param) = val;
             [q1, p1, q1mid, p1mid, q1outlet, p1outlet] = ...
-                obj.model(struct('E', E));
+                obj.model(struct());
             [errp1in, errq1mid, errp1mid, errq1out, errp1out] = ...
                 obj.errors(p1, q1mid, p1mid, q1outlet, p1outlet);
             ep1mid = mean(errp1mid);
         end
 
-        function Eopt = optimiseE(obj, El, Eh)
+        function Popt = optimiseParam(obj, param, El, Eh)
             gr = (1 + sqrt(5)) / 2;
             c = Eh - (Eh - El) / gr;
             d = El + (Eh - El) / gr;
+            fun = @(v) obj.ep1midfromP(param, v);
 
-            while abs(Eh - El) > 1
-                if (obj.ep1midfromE(c) < obj.ep1midfromE(d))
+            while abs((Eh - El)/El) > 1e-5
+                if (fun(c) < fun(d))
                     Eh = d;
                 else
                     El = c;
@@ -210,7 +212,7 @@ classdef CommonCarotidModel
                 d = El + (Eh - El) / gr;
             end
 
-            Eopt = (El + Eh) / 2;
+            Popt = (El + Eh) / 2;
         end
     end
 end
