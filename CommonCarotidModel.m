@@ -196,7 +196,7 @@ classdef CommonCarotidModel
             ep1mid = mean(errp1mid);
         end
 
-        function Popt = optimiseParam(obj, param, El, Eh)
+        function [Popt, Perr] = optimiseParam(obj, param, El, Eh)
             gr = (1 + sqrt(5)) / 2;
             c = Eh - (Eh - El) / gr;
             d = El + (Eh - El) / gr;
@@ -213,6 +213,8 @@ classdef CommonCarotidModel
             end
 
             Popt = (El + Eh) / 2;
+            pactual = obj.(param);
+            Perr = 100 * abs((pactual - Popt) / pactual);
         end
     end
 end
