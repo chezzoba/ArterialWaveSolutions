@@ -187,20 +187,32 @@ classdef CommonCarotidModel
             end
         end
 
-        function ep1mid = ep1midfromP(obj, param, val)
+        function ep1mid = errfromP(obj, param, output, val)
             obj.(param) = val;
             [q1, p1, q1mid, p1mid, q1outlet, p1outlet] = ...
                 obj.model(struct());
             [errp1in, errq1mid, errp1mid, errq1out, errp1out] = ...
                 obj.errors(p1, q1mid, p1mid, q1outlet, p1outlet);
-            ep1mid = mean(errp1mid);
+            switch (output)
+                case 'p1mid'
+                    ep1mid = mean(errp1mid);
+                case 'p1out'
+                    ep1mid = mean(errp1out);
+                case 'q1out'
+                    ep1mid = mean(errq1out);
+                case 'p1in'
+                    ep1mid = mean(errp1in);
+                case 'q1mid'
+                    ep1mid = mean(errq1mid);
+            end
+            
         end
 
-        function [Popt, Perr] = optimiseParam(obj, param, El, Eh)
+        function [Popt, Perr] = optimiseParam(obj, param, output, El, Eh)
             gr = (1 + sqrt(5)) / 2;
             c = Eh - (Eh - El) / gr;
             d = El + (Eh - El) / gr;
-            fun = @(v) obj.ep1midfromP(param, v);
+            fun = @(v) obj.errfromP(param, output, v);
 
             while abs((Eh - El)/El) > 1e-5
                 if (fun(c) < fun(d))
