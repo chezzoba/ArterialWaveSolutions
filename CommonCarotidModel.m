@@ -208,6 +208,15 @@ classdef CommonCarotidModel
             
         end
 
+        function etot = errtot(obj, param, val)
+            obj.(param) = val;
+            [q1, p1, q1mid, p1mid, q1outlet, p1outlet] = ...
+                obj.model(struct());
+            [errp1in, errq1mid, errp1mid, errq1out, errp1out] = ...
+                obj.errors(p1, q1mid, p1mid, q1outlet, p1outlet);
+            etot = sum(sqrt([mean(errp1mid), mean(errp1out), mean(errq1out), mean(errp1in), mean(errq1mid)]));
+        end
+
         function [Popt, Perr] = optimiseParam(obj, param, output, El, Eh)
             gr = (1 + sqrt(5)) / 2;
             c = Eh - (Eh - El) / gr;
@@ -227,6 +236,62 @@ classdef CommonCarotidModel
             Popt = (El + Eh) / 2;
             pactual = obj.(param);
             Perr = 100 * abs((pactual - Popt) / pactual);
+        end
+
+        function [Popt, Perr] = optimiseParamtot(obj, param)
+            El = obj.(param) * 0.8;
+            Eh = obj.(param) * 1.2;
+
+            gr = (1 + sqrt(5)) / 2;
+            c = Eh - (Eh - El) / gr;
+            d = El + (Eh - El) / gr;
+            fun = @(v) obj.errtot(param, v);
+
+            while abs((Eh - El)/El) > 1e-5
+                if (fun(c) < fun(d))
+                    Eh = d;
+                else
+                    El = c;
+                end
+                c = Eh - (Eh - El) / gr;
+                d = El + (Eh - El) / gr;
+            end
+
+            Popt = (El + Eh) / 2;
+            pactual = obj.(param);
+            Perr = 100 * abs((pactual - Popt) / pactual);
+        end
+
+        function plotErr(obj, param, output)
+            El = obj.(param) / 10;
+            Eh = obj.(param) * 2;
+            Es = linspace(El, Eh, 1000);
+            fun = @(v) obj.errfromP(param, output, v);
+            Err = zeros(1, length(Es));
+            for i = 1:length(Es)
+                Err(i) = fun(Es(i));
+            end
+            fig = figure('Name', param + " vs Error of " + output);
+            plot(Es, Err)
+            title("Variation of Error in " + output + " with " + param)
+            xlabel(param)
+            ylabel("Error of " + output + " [%]" )
+        end
+
+        function plotTotErr(obj, param)
+            El = obj.(param) / 10;
+            Eh = obj.(param) * 2;
+            Es = linspace(El, Eh, 1000);
+            fun = @(v) obj.errtot(param, v);
+            Err = zeros(1, length(Es));
+            for i = 1:length(Es)
+                Err(i) = fun(Es(i))*100;
+            end
+            fig = figure('Name', param + " vs Total Error");
+            plot(Es, Err)
+            title("Variation of Total Error with " + param)
+            xlabel(param)
+            ylabel("Total Error [%]" )
         end
     end
 end
