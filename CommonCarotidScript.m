@@ -21,8 +21,8 @@ erract = ccm.globalerr(scaler.transform(xact), scaler, params, sol);
 SGD = GradientDescent;
 
 fun = @(x) ccm.globalerr(x, scaler, params, sol);
-x0 = 1.1 .* scaler.transform((xact));
+x0 = 2 .* scaler.transform((xact));
 dx = repmat([1e-5], length(xact));
 
-xpred = mean(SGD.optimize(fun, x0, dx), 1)
+xpred = scaler.inv_transform(mean(SGD.optimize(fun, x0, dx), 1))
 
