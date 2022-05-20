@@ -4,7 +4,7 @@ classdef GradientDescent
     
     properties
         max_iter = 1e4; % Maximum number of iterations
-        tol = 5e-3; % Tolerance
+        tol = 1e-3; % Tolerance
         alpha = 1e-2; % Step Size
     end
     

@@ -1,4 +1,4 @@
-params = ["L" "R" "be" "RW1" "RW2" "Cwk" "a"];
+params = ["L" "R" "be" "RW1" "RW2" "Cwk"];
 ccm = CommonCarotidModel;
 zero = zeros(1, length(params));
 [xmin, xmax, xact] = deal(zero, zero, zero);
@@ -21,8 +21,10 @@ erract = ccm.globalerr(scaler.transform(xact), scaler, params, sol);
 SGD = GradientDescent;
 
 fun = @(x) ccm.globalerr(x, scaler, params, sol);
-x0 = 2 .* scaler.transform((xact));
+x0 = 0.8 .* scaler.transform((xact));
 dx = repmat([1e-5], length(xact));
-
-xpred = scaler.inv_transform(mean(SGD.optimize(fun, x0, dx), 1))
+options = optimset('PlotFcns',@optimplotfval);
+xpred = scaler.inv_transform(fminsearch(fun, x0, options))
+Perr = 100 .* abs(xpred - xact) ./ xact
+%xpred = scaler.inv_transform(mean(SGD.optimize(fun, x0, dx), 1))
 
