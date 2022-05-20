@@ -7,14 +7,11 @@ classdef CommonCarotidModel
         %Properties
         L = 126*10^-3;                                      %Table 1 (Flores 2016)
         R = 3*10^-3;                                        %Table 1 (Flores 2016)
-        h = 0.3*10^-3;                                      %Table 1 (Flores 2016)
-        rho = 1060;                                         %Table 1 (Flores 2016)
-        E = 700*10^3;                                       %Table 1 (Flores 2016)
-        v = 0.5;        
+        rho = 1060;                                         %Table 1 (Flores 2016)  
         RW1 = 2.4875*10^8;                                  %Table 1 (Flores 2016)
         RW2 = 1.8697*10^9;                                  %Table 1 (Flores 2016)
         Cwk = 1.7529*10^-10;                                %Table 1 (Flores 2016)
-        
+        be = 0.003571428571429;
         % External Data
         CC_inlet_BC = load('PreviousCode/automeris/common_carotid_artery/CC_inlet_BC.csv');
         inlet_pressure = load('PreviousCode/automeris/common_carotid_artery/inlet_pressure.csv');
@@ -25,24 +22,18 @@ classdef CommonCarotidModel
     end
     
     methods
-        function [q1, p1, q1mid, p1mid, q1outlet, p1outlet, obj] = model(obj, kwargs)
-
-            fnames = fieldnames(kwargs);
-            for field = 1:length(fnames)
-                obj.(fnames{field}) = kwargs.(fnames{field});
-            end
-
+        function sol = model(obj)
             a = obj.a;
             %Properties
             L = obj.L;
             R = obj.R;
-            h = obj.h;
-            rho = obj.rho;
-            E = obj.E;
-            v = obj.v;      
+            rho = obj.rho;     
             RW1 = obj.RW1;
             RW2 = obj.RW2;
             Cwk = obj.Cwk;
+            E = 5e5;
+            v = 0.5;
+            h = (1 - v^2) / (E * obj.be);
 
             %% Importing the data from the Flores plots
             CC_inlet_BC = obj.CC_inlet_BC;
@@ -115,183 +106,19 @@ classdef CommonCarotidModel
                 Y_s1 = (2*pi*(1-cos(a)))*(fs1/rho)^0.5*s1^2.5;
                 Q1outlet(ih) = -(1i*Y_s1*(s1^-0.5)*(A1tilda*J_43s1+B1tilda*Y_43s1));
                 P1outlet(ih) = ((s1^-0.5)*(A1tilda*J_13s1+B1tilda*Y_13s1));
-                
             end
-            
-            %% Inverse Fourier
-            q1 = zeros(size(t)) + real(Q1(1)*F(1));
-            p1 = zeros(size(t)) + real(P1(1)*F(1));
-            q1mid = zeros(size(t)) + real(Q1mid(1)*F(1));
-            p1mid = zeros(size(t)) + real(P1mid(1)*F(1));
-            q1outlet = zeros(size(t)) + real(Q1outlet(1)*F(1));
-            p1outlet = zeros(size(t)) + real(P1outlet(1)*F(1));
-            
-             for ih = 1:nh
-                 
-                    
-                  q1 = q1 + real(Q1(ih+1)*2*F(ih+1)*exp(-1i*omega(ih+1)*t));
-                  p1 = p1 + real(P1(ih+1)*2*F(ih+1)*exp(-1i*omega(ih+1)*t));
-                    
-                  q1mid = q1mid + real(Q1mid(ih+1)*2*F(ih+1)*exp(-1i*omega(ih+1)*t));
-                  p1mid = p1mid + real(P1mid(ih+1)*2*F(ih+1)*exp(-1i*omega(ih+1)*t));
-                  
-                  q1outlet = q1outlet + real(Q1outlet(ih+1)*2*F(ih+1)*exp(-1i*omega(ih+1)*t));
-                  p1outlet = p1outlet + real(P1outlet(ih+1)*2*F(ih+1)*exp(-1i*omega(ih+1)*t));
-            
-             end
+            sol = [P1; Q1mid; P1mid; Q1outlet; P1outlet];
         end
 
-        function [errp1in, errq1mid, errp1mid, errq1out, errp1out] = errors(obj, p1, q1mid, p1mid, q1outlet, p1outlet)
-            %Average
-
-            x = obj.CC_inlet_BC(1:end,1);                            %Extracting the time data to a vector
-            y = obj.CC_inlet_BC(1:end,2)*10^-6;                      %Extracting the Q data to a vector
-            N = length(y);
-            T = obj.CC_inlet_BC(end,1);                              %Extracting the period of th signal
-            xi = (x(1):T/((N)):T)';                              %Creating an equispaced time vector to be used in the fft
-            t = xi(1:end);
-            
-            yiinletpressure = interp1q(obj.inlet_pressure(1:end,1),obj.inlet_pressure(1:end,2),xi);
-            for i = 2:length(t)-2
-                
-                errp1in(i) = abs((yiinletpressure(i) - p1(i))/(yiinletpressure(i)))^2;
-            
+        function err = globalerr(obj, xp, scaler, params, actsol)
+            x = scaler.inv_transform(xp);
+            for field = 1:length(params)
+                obj.(params(field)) = x(field);
             end
-            
-            yimidpressure = interp1q(obj.mid_pressure(1:end,1),obj.mid_pressure(1:end,2),xi);
-            for i = 2:length(t)-2
-                
-                errp1mid(i) = abs((yimidpressure(i) - p1mid(i))/(yimidpressure(i)))^2;
-            
-            end
-            
-            yimidflow = interp1q(obj.CC_mid(1:end,1),obj.CC_mid(1:end,2),xi);
-            for i = 2:length(t)-2
-                
-                 errq1mid(i) = abs((yimidflow(i)*10^-6 - q1mid(i))/(max(yimidflow)*10^-6))^2;
-            
-            end
-            
-            yioutletpressure = interp1q(obj.outlet_pressure(1:end,1),obj.outlet_pressure(1:end,2),xi);
-            for i = 2:length(t)-2
-                
-                errp1out(i) = abs((yioutletpressure(i) - p1outlet(i))/(yioutletpressure(i)))^2;
-            
-            end
-            
-            yioutletflow = interp1q(obj.CC_outlet(1:end,1),obj.CC_outlet(1:end,2),xi);
-            for i = 2:length(t)-2
-                
-                 errq1out(i) = abs((yioutletflow(i)*10^-6 - q1outlet(i))/(max(yioutletflow)*10^-6))^2;
-            
-            end
-        end
-
-        function ep1mid = errfromP(obj, param, output, val)
-            obj.(param) = val;
-            [q1, p1, q1mid, p1mid, q1outlet, p1outlet] = ...
-                obj.model(struct());
-            [errp1in, errq1mid, errp1mid, errq1out, errp1out] = ...
-                obj.errors(p1, q1mid, p1mid, q1outlet, p1outlet);
-            switch (output)
-                case 'p1mid'
-                    ep1mid = mean(errp1mid);
-                case 'p1out'
-                    ep1mid = mean(errp1out);
-                case 'q1out'
-                    ep1mid = mean(errq1out);
-                case 'p1in'
-                    ep1mid = mean(errp1in);
-                case 'q1mid'
-                    ep1mid = mean(errq1mid);
-            end
-            
-        end
-
-        function etot = errtot(obj, param, val)
-            obj.(param) = val;
-            [q1, p1, q1mid, p1mid, q1outlet, p1outlet] = ...
-                obj.model(struct());
-            [errp1in, errq1mid, errp1mid, errq1out, errp1out] = ...
-                obj.errors(p1, q1mid, p1mid, q1outlet, p1outlet);
-            etot = sum(sqrt([mean(errp1mid), mean(errp1out), mean(errq1out), mean(errp1in), mean(errq1mid)]));
-        end
-
-        function [Popt, Perr] = optimiseParam(obj, param, output, El, Eh)
-            gr = (1 + sqrt(5)) / 2;
-            c = Eh - (Eh - El) / gr;
-            d = El + (Eh - El) / gr;
-            fun = @(v) obj.errfromP(param, output, v);
-
-            while abs((Eh - El)/El) > 1e-5
-                if (fun(c) < fun(d))
-                    Eh = d;
-                else
-                    El = c;
-                end
-                c = Eh - (Eh - El) / gr;
-                d = El + (Eh - El) / gr;
-            end
-
-            Popt = (El + Eh) / 2;
-            pactual = obj.(param);
-            Perr = 100 * abs((pactual - Popt) / pactual);
-        end
-
-        function [Popt, Perr] = optimiseParamtot(obj, param)
-            El = obj.(param) * 0.8;
-            Eh = obj.(param) * 1.2;
-
-            gr = (1 + sqrt(5)) / 2;
-            c = Eh - (Eh - El) / gr;
-            d = El + (Eh - El) / gr;
-            fun = @(v) obj.errtot(param, v);
-
-            while abs((Eh - El)/El) > 1e-5
-                if (fun(c) < fun(d))
-                    Eh = d;
-                else
-                    El = c;
-                end
-                c = Eh - (Eh - El) / gr;
-                d = El + (Eh - El) / gr;
-            end
-
-            Popt = (El + Eh) / 2;
-            pactual = obj.(param);
-            Perr = 100 * abs((pactual - Popt) / pactual);
-        end
-
-        function plotErr(obj, param, output)
-            El = obj.(param) / 10;
-            Eh = obj.(param) * 2;
-            Es = linspace(El, Eh, 1000);
-            fun = @(v) obj.errfromP(param, output, v);
-            Err = zeros(1, length(Es));
-            for i = 1:length(Es)
-                Err(i) = fun(Es(i));
-            end
-            fig = figure('Name', param + " vs Error of " + output);
-            plot(Es, Err)
-            title("Variation of Error in " + output + " with " + param)
-            xlabel(param)
-            ylabel("Error of " + output + " [%]" )
-        end
-
-        function plotTotErr(obj, param)
-            El = obj.(param) / 10;
-            Eh = obj.(param) * 2;
-            Es = linspace(El, Eh, 1000);
-            fun = @(v) obj.errtot(param, v);
-            Err = zeros(1, length(Es));
-            for i = 1:length(Es)
-                Err(i) = fun(Es(i))*100;
-            end
-            fig = figure('Name', param + " vs Total Error");
-            plot(Es, Err)
-            title("Variation of Total Error with " + param)
-            xlabel(param)
-            ylabel("Total Error [%]" )
+            sol = obj.model();
+            spe = (abs(sol - actsol) .^ 2) ./ abs(actsol) .^ 2 ;
+            mspe = mean(spe, 2);
+            err = sum(mspe);
         end
     end
 end

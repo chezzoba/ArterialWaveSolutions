@@ -14,7 +14,7 @@ Cwk = 1.0163*10^-8;                                 %Table 2 (Flores 2016)
 
 %% Importing the data from the Flores plots
 load('automeris/uper_thoracic_aorta/UTA_BC.csv')
-load('automeris/tapered_aorta/Inlet_pressure.csv')
+Inlet_pressure = load('automeris/tapered_aorta/Inlet_Pressure.csv');
 load('automeris/tapered_aorta/midpoint_pressure.csv')
 load('automeris/tapered_aorta/outlet_pressure.csv')
 load('automeris/tapered_aorta/midpoint_flow.csv')

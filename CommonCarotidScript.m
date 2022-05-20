@@ -1,13 +1,28 @@
-params = {{'L'}    {'R'}    {'h'}    {'rho'}    {'E'}    {'v'}    {'RW1'}    {'RW2'}    {'Cwk'}};
-params = convertCharsToStrings([params{:}]);
-
-T = table('Size', [3, length(params)],'VariableNames', params, 'VariableTypes', repmat("double", 1, length(params)));
-
+params = ["L" "R" "be" "RW1" "RW2" "Cwk" "a"];
+ccm = CommonCarotidModel;
+zero = zeros(1, length(params));
+[xmin, xmax, xact] = deal(zero, zero, zero);
 for i = 1:length(params)
-    [Optimised_Value, Percentage_Error] = ccm.optimiseParamtot(params(i));
-    T.(params(i))(1) = ccm.(params(i));
-    T.(params(i))(2) = Optimised_Value;
-    T.(params(i))(3) = round(Percentage_Error, 2);
+    xiv = ccm.(params(i));
+    xmin(i) = xiv / 10;
+    xmax(i) = xiv * 10;
+    xact(i) = xiv;
 end
 
-writetable(T,'Data/CCA_GlobalOpt.csv');
+scaler = MinMaxScaler(xmin, xmax);
+load('Data/ccm_sol_model.mat');
+% msol = ccm.model();
+% spe = abs(sol - msol) .^ 2 / abs(sol) .^ 2;
+% mspe = mean(spe, 2);
+% err = sum(mspe);
+
+erract = ccm.globalerr(scaler.transform(xact), scaler, params, sol);
+
+SGD = GradientDescent;
+
+fun = @(x) ccm.globalerr(x, scaler, params, sol);
+x0 = 1.1 .* scaler.transform((xact));
+dx = repmat([1e-5], length(xact));
+
+xpred = mean(SGD.optimize(fun, x0, dx), 1)
+
