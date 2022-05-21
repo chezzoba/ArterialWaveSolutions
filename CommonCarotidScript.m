@@ -4,8 +4,8 @@ zero = zeros(1, length(params));
 [xmin, xmax, xact] = deal(zero, zero, zero);
 for i = 1:length(params)
     xiv = ccm.(params(i));
-    xmin(i) = xiv / 10;
-    xmax(i) = xiv * 10;
+    xmin(i) = xiv / 5;
+    xmax(i) = xiv * 5;
     xact(i) = xiv;
 end
 
@@ -18,13 +18,20 @@ load('Data/ccm_sol_model.mat');
 
 erract = ccm.globalerr(scaler.transform(xact), scaler, params, sol);
 
-SGD = GradientDescent;
 
 fun = @(x) ccm.globalerr(x, scaler, params, sol);
-x0 = 0.8 .* scaler.transform((xact));
-dx = repmat([1e-5], length(xact));
-options = optimset('PlotFcns',@optimplotfval);
-xpred = scaler.inv_transform(fminsearch(fun, x0, options))
-Perr = 100 .* abs(xpred - xact) ./ xact
-%xpred = scaler.inv_transform(mean(SGD.optimize(fun, x0, dx), 1))
+x00 = scaler.transform(2 .* (xact));
+options = optimset('PlotFcns',@optimplotfval, 'TolX', 1e-10, 'TolFun', 1e-21);
+
+xpred = fminsearch(fun, x00, options);
+
+total_iters = 10;
+
+for iter = 1:total_iters
+    x0 = xpred;
+    xpred = fminsearch(fun, x0, options);
+end
+
+err0 = 100 .* abs(scaler.inv_transform(x00) - xact) ./ xact
+errP = 100 .* abs(scaler.inv_transform(xpred) - xact) ./ xact
 
