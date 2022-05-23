@@ -1,13 +1,15 @@
 params = ["L" "R" "be" "RW1" "RW2" "Cwk"];
 ccm = CommonCarotidModel;
-zero = zeros(1, length(params));
-[xmin, xmax, xact] = deal(zero, zero, zero);
-for i = 1:length(params)
-    xiv = ccm.(params(i));
-    xmin(i) = xiv / 5;
-    xmax(i) = xiv * 5;
-    xact(i) = xiv;
-end
+% zero = zeros(1, length(params));
+% [xmin, xmax, xact] = deal(zero, zero, zero);
+% for i = 1:length(params)
+%     xiv = ccm.(params(i));
+%     xmin(i) = xiv / 5;
+%     xmax(i) = xiv * 5;
+%     xact(i) = xiv;
+% end
+xmin = [0.005, 3e-3, 0.0013, 0, 0, 0];
+xmax = [0.15, 15.2e-3, 0.005, 74e7, 52.2e8, 17.1e-10];
 
 scaler = MinMaxScaler(xmin, xmax);
 load('Data/ccm_sol_model.mat');
@@ -18,20 +20,12 @@ load('Data/ccm_sol_model.mat');
 
 erract = ccm.globalerr(scaler.transform(xact), scaler, params, sol);
 
-
 fun = @(x) ccm.globalerr(x, scaler, params, sol);
-x00 = scaler.transform(2 .* (xact));
-options = optimset('PlotFcns',@optimplotfval, 'TolX', 1e-10, 'TolFun', 1e-21);
 
-xpred = fminsearch(fun, x00, options);
 
-total_iters = 10;
+nms = NelderMeadSimplex;
 
-for iter = 1:total_iters
-    x0 = xpred;
-    xpred = fminsearch(fun, x0, options);
-end
+xpred = nms.fit(fun)
 
-err0 = 100 .* abs(scaler.inv_transform(x00) - xact) ./ xact
-errP = 100 .* abs(scaler.inv_transform(xpred) - xact) ./ xact
+errP = 100 .* nms.relerr(xact, scaler.inv_transform(xpred))
 
