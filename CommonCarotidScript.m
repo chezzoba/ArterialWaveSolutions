@@ -9,6 +9,8 @@ optimise = OptimisationProblem(CommonCarotidModel, params, scaler);
 
 [xpred, errP, erract, nguesses] = optimise.fitmeasurements()
 
-optimise.optimiser.x0Tol = 3;
-
-%[xpred, errP, erract, nguesses] = optimise.fitsolution(sol)
+% optimise.optimiser.x0Tol = 3;
+% optimise.optimiser.TolFun = 1e-25;
+% optimise.optimiser.StepTolerance = 0;
+% 
+% [xpred, errP, erract, nguesses] = optimise.fitsolution(sol)

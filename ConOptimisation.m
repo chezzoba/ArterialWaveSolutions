@@ -8,7 +8,7 @@ classdef ConOptimisation
         x0Tol = 5e-2;
         TolX = 1e-30;
         TolFun = 1e-5;
-        StepTolerance = 1e-20;
+        StepTolerance = 1e-6;
     end
     
     methods
