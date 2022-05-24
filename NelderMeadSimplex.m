@@ -11,7 +11,7 @@ classdef NelderMeadSimplex
 
     methods
 
-        function xpred = fit(obj, fun)
+        function [xpred, nguesses] = fit(obj, fun)
             %Fit - Optimise function fun, with an initial guess x0
             if (obj.plt)
                 options = optimset('PlotFcns',@optimplotfval,...
@@ -26,10 +26,8 @@ classdef NelderMeadSimplex
                 x0 = rand(1, obj.lenX);
                 nguesses = nguesses + 1;
             end
-            nguesses
 
             xpred = x0;
-
             for epoch = 1:obj.epochs
                 xpred = fminsearch(fun, xpred, options);
             end
