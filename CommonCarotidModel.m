@@ -22,7 +22,7 @@ classdef CommonCarotidModel
     end
     
     methods
-        function sol = model(obj)
+        function [sol, toterr] = model(obj)
             a = obj.a;
             %Properties
             L = obj.L;
@@ -106,6 +106,74 @@ classdef CommonCarotidModel
                 P1outlet(ih) = ((s1^-0.5)*(A1tilda*J_13s1+B1tilda*Y_13s1));
             end
             sol = [P1; Q1mid; P1mid; Q1outlet; P1outlet];
+
+            %% Inverse Fourier
+            q1 = zeros(size(t)) + real(Q1(1)*F(1));
+            p1 = zeros(size(t)) + real(P1(1)*F(1));
+            q1mid = zeros(size(t)) + real(Q1mid(1)*F(1));
+            p1mid = zeros(size(t)) + real(P1mid(1)*F(1));
+            q1outlet = zeros(size(t)) + real(Q1outlet(1)*F(1));
+            p1outlet = zeros(size(t)) + real(P1outlet(1)*F(1));
+            
+             for ih = 1:nh
+                 
+                    
+                  q1 = q1 + real(Q1(ih+1)*2*F(ih+1)*exp(-1i*omega(ih+1)*t));
+                  p1 = p1 + real(P1(ih+1)*2*F(ih+1)*exp(-1i*omega(ih+1)*t));
+                    
+                  q1mid = q1mid + real(Q1mid(ih+1)*2*F(ih+1)*exp(-1i*omega(ih+1)*t));
+                  p1mid = p1mid + real(P1mid(ih+1)*2*F(ih+1)*exp(-1i*omega(ih+1)*t));
+                  
+                  q1outlet = q1outlet + real(Q1outlet(ih+1)*2*F(ih+1)*exp(-1i*omega(ih+1)*t));
+                  p1outlet = p1outlet + real(P1outlet(ih+1)*2*F(ih+1)*exp(-1i*omega(ih+1)*t));
+            
+             end
+             
+            
+            %% Error calculations
+            %Average
+            
+            yiinletpressure = interp1q(obj.inlet_pressure(1:end,1),obj.inlet_pressure(1:end,2),xi);
+            for i = 2:length(t)-2
+                
+                errinlet(i) = abs((yiinletpressure(i) - p1(i))/(yiinletpressure(i)))^2;
+            
+            end
+            errorinletpressure = mean(errinlet);
+            
+            yimidpressure = interp1q(obj.mid_pressure(1:end,1),obj.mid_pressure(1:end,2),xi);
+            for i = 2:length(t)-2
+                
+                errmid(i) = abs((yimidpressure(i) - p1mid(i))/(yimidpressure(i)))^2;
+            
+            end
+            errormidpressure = mean(errmid);
+            
+            yimidflow = interp1q(obj.CC_mid(1:end,1),obj.CC_mid(1:end,2),xi);
+            for i = 2:length(t)-2
+                
+                 errmid(i) = abs((yimidflow(i)*10^-6 - q1mid(i))/(max(yimidflow)*10^-6))^2;
+            
+            end
+            errormidflow = mean(errmid);
+            
+            yioutletpressure = interp1q(obj.outlet_pressure(1:end,1),obj.outlet_pressure(1:end,2),xi);
+            for i = 2:length(t)-2
+                
+                errmid(i) = abs((yioutletpressure(i) - p1outlet(i))/(yioutletpressure(i)))^2;
+            
+            end
+            erroroutletpressure = mean(errmid);
+            
+            yioutletflow = interp1q(obj.CC_outlet(1:end,1),obj.CC_outlet(1:end,2),xi);
+            for i = 2:length(t)-2
+                
+                 errmid(i) = abs((yioutletflow(i)*10^-6 - q1outlet(i))/(max(yioutletflow)*10^-6))^2;
+            
+            end
+            erroroutletflow = mean(errmid);
+            toterr = erroroutletflow + erroroutletpressure + errormidflow +...
+                errormidpressure + errorinletpressure;
         end
 
         function err = globalerr(obj, xp, scaler, params, actsol)
@@ -117,6 +185,36 @@ classdef CommonCarotidModel
             spe = (abs(sol - actsol) .^ 2) ./ abs(actsol) .^ 2 ;
             mspe = mean(spe, 2);
             err = sum(mspe);
+        end
+
+        function err = measurementerr(obj, xp, scaler, params)
+            x = scaler.inv_transform(xp);
+            for field = 1:length(params)
+                obj.(params(field)) = x(field);
+            end
+            [~, err] = obj.model();
+        end
+
+        function sol = measurement(obj)
+            Qmid = obj.CC_mid;
+            Qmid(:, 2) = Qmid(:, 2) .* 1e-6;
+            Qout = obj.CC_outlet;
+            Qout(:, 2) = Qout(:, 2) .* 1e-6;
+            T = obj.CC_inlet_BC(end, 1);
+            om0 = 2*pi / T;
+            om = (1:60) .* om0;
+            sols = {obj.inlet_pressure, Qmid, obj.mid_pressure, Qout,...
+                obj.outlet_pressure};
+            sol = [];
+            for s = 1:length(sols)
+                meas = sols{s};
+                Ts = meas(end, 1);
+                om0s = 2*pi / Ts;
+                oms = (1:60) .* om0s;
+                fts = interp1(oms, (fft(meas(:, 2), 60) / 60 ).', om);
+                fts(isnan(fts)) = 1e-10;
+                sol = [sol; fts];
+            end
         end
     end
 end

@@ -1,17 +1,17 @@
 classdef NelderMeadSimplex
 
     properties
-        TolX = 1e-10;
-        TolFun = 1e-21;
-        epochs = 5;
+        TolX = 1e-22;
+        TolFun = 2e-16;
+        epochs = 1;
         plt = true;
-        x0Tol = 4;
+        x0Tol = 0.00001;
         lenX = 6;
     end
 
     methods
 
-        function [xpred, nguesses] = fit(obj, fun)
+        function [xpred, nguesses] = fit(obj, fun, x0)
             %Fit - Optimise function fun, with an initial guess x0
             if (obj.plt)
                 options = optimset('PlotFcns',@optimplotfval,...
@@ -19,13 +19,16 @@ classdef NelderMeadSimplex
             else
                 options = optimset('TolX', obj.TolX, 'TolFun', obj.TolFun);
             end
-            
-            x0 = rand(1, obj.lenX);
+
             nguesses = 1;
-            while fun(x0) > obj.x0Tol
+            if (length(x0) < obj.lenX)
                 x0 = rand(1, obj.lenX);
-                nguesses = nguesses + 1;
+                while fun(x0) > obj.x0Tol
+                    x0 = rand(1, obj.lenX);
+                    nguesses = nguesses + 1;
+                end
             end
+
 
             xpred = x0;
             for epoch = 1:obj.epochs
