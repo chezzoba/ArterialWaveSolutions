@@ -10,7 +10,7 @@ scaler = MinMaxScaler(xmin, xmax);
 problem = OptimisationProblem(CommonCarotidModel, params, scaler);
 
 
-measurements = 0;
+measurements = 1;
 
 switch (measurements)
     case (0)

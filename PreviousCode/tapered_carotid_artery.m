@@ -3,7 +3,6 @@ clear;
 %Properties
 L = 126*10^-3;                                      %Table 1 (Flores 2016)
 R = 4*10^-3;                                        %Table 1 (Flores 2016)
-a = atan((R-R/2)/L);
 h = 0.3*10^-3;                                      %Table 1 (Flores 2016)
 rho = 1060;                                         %Table 1 (Flores 2016)
 E = 700*10^3;                                       %Table 1 (Flores 2016)
@@ -11,6 +10,8 @@ v = 0.5;
 RW1 = 6.8548*10^8;                                  %Table 1 (Flores 2016)
 RW2 = 1.433*10^9;                                  %Table 1 (Flores 2016)
 Cwk = 1.7529*10^-10;                                %Table 1 (Flores 2016)
+
+a = atan((R-R/2)/L);
 
 %% Importing the data from the Flores plots
 load('automeris/common_carotid_artery/CC_inlet_BC.csv')
