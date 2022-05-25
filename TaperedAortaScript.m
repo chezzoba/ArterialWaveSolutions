@@ -19,7 +19,9 @@ switch (measurements)
         
         [xpred, errP, erract, nguesses] = problem.fitsolution(0)
     case (1)
+        problem.optimiser = ConOptimisation;
         problem.optimiser.x0Tol = 1;
+        
         [xpred, errP, erract, nguesses] = problem.fitmeasurements(0)
 end
 
