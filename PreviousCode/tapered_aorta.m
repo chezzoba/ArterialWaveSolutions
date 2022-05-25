@@ -2,8 +2,7 @@
 clear;
 %Properties
 L = 24.137*10^-2;                                   %Table 2 (Flores 2016)
-R = 1.5*10^-2;                                     %Table 2 (Flores 2016)
-a = atan((R-10^-2)/L);
+R = 1.5*10^-2;                                      %Table 2 (Flores 2016)
 h = 1.2*10^-3;                                      %Table 2 (Flores 2016)
 rho = 1060;                                         %Table 2 (Flores 2016)
 E = 400*10^3;                                       %Table 2 (Flores 2016)
@@ -11,6 +10,7 @@ v = 0.5;
 RW1 = 1.8503*10^7;                                  %Table 2 (Flores 2016)
 RW2 = 1.0492*10^8;                                  %Table 2 (Flores 2016)
 Cwk = 1.0163*10^-8;                                 %Table 2 (Flores 2016)
+a = atan((R-10^-2)/L);
 
 %% Importing the data from the Flores plots
 load('automeris/uper_thoracic_aorta/UTA_BC.csv')

@@ -14,8 +14,7 @@ classdef OptimisationProblem
         function obj = OptimisationProblem(model, params, scaler)
             %OPTIMISATIONPROBLEM Construct an instance of this class
             %   Detailed explanation goes here
-            [obj.model, obj.params, obj.scaler] = ...
-                deal(model, params, scaler);
+            [obj.model, obj.params, obj.scaler] = deal(model, params, scaler);
             obj.xact = zeros(1, length(params));
             for i = 1:length(params)
                 obj.xact(i) = obj.model.(params(i));
