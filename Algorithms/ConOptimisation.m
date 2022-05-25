@@ -5,10 +5,10 @@ classdef ConOptimisation
     properties
         plt = true;
         lenX = 6;
-        x0Tol = 5e-2;
+        x0Tol = 1;
         TolX = 1e-30;
         TolFun = 1e-5;
-        StepTolerance = 1e-6;
+        StepTolerance = 1e-50;
     end
     
     methods

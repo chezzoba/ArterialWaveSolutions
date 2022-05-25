@@ -3,9 +3,9 @@ classdef NelderMeadSimplex
     properties
         TolX = 1e-22;
         TolFun = 2e-16;
-        epochs = 1;
+        epochs = 3;
         plt = true;
-        x0Tol = 0.00001;
+        x0Tol = 5;
         lenX = 6;
     end
 
