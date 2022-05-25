@@ -11,7 +11,7 @@ classdef CommonCarotidModel
         RW1 = 2.4875*10^8;                                  %Table 1 (Flores 2016)
         RW2 = 1.8697*10^9;                                  %Table 1 (Flores 2016)
         Cwk = 1.7529*10^-10;                                %Table 1 (Flores 2016)
-        be = 0.003571428571429;
+        be = 0.75/(700*0.3);
         % External Data
         CC_inlet_BC = load('PreviousCode/automeris/common_carotid_artery/CC_inlet_BC.csv');
         inlet_pressure = load('PreviousCode/automeris/common_carotid_artery/inlet_pressure.csv');

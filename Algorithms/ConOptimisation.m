@@ -23,7 +23,7 @@ classdef ConOptimisation
                     'OptimalityTolerance', 1e-20);
             end
 
-            nguesses = 1;
+            nguesses = 0;
             if (length(x0) < obj.lenX)
                 x0 = rand(1, obj.lenX);
                 while fun(x0) > obj.x0Tol

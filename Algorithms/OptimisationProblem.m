@@ -32,9 +32,8 @@ classdef OptimisationProblem
             errP = 100 .* obj.optimiser.relerr(obj.xact, xpredt);
         end
 
-        function [xpred, errP, erract, nguesses] = fitsolution(obj, sol, x0)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
+        function [xpred, errP, erract, nguesses] = fitsolution(obj, x0)
+            sol = obj.model.model();
             xactt = obj.scaler.transform(obj.xact);
             erract = obj.model.globalerr(xactt, obj.scaler, obj.params, sol);
             fun = @(x) obj.model.globalerr(x, obj.scaler, obj.params, sol);

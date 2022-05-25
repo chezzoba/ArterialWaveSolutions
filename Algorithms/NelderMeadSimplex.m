@@ -1,8 +1,8 @@
 classdef NelderMeadSimplex
 
     properties
-        TolX = 1e-22;
-        TolFun = 2e-16;
+        TolX = 1e-50;
+        TolFun = 1e-50;
         epochs = 3;
         plt = true;
         x0Tol = 5;
@@ -20,7 +20,7 @@ classdef NelderMeadSimplex
                 options = optimset('TolX', obj.TolX, 'TolFun', obj.TolFun);
             end
 
-            nguesses = 1;
+            nguesses = 0;
             if (length(x0) < obj.lenX)
                 x0 = rand(1, obj.lenX);
                 while fun(x0) > obj.x0Tol
