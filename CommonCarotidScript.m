@@ -1,5 +1,4 @@
-addpath("Algorithms/");
-addpath("Models/");
+addpath("Algorithms/", "Models/");
 
 params = ["L" "R" "be" "RW1" "RW2" "Cwk"];
 xmin = [0.005,0.0001,0.002,0,0,0];

@@ -16,6 +16,16 @@ RW1 = 1.1752*10^7;                                  %Table 2 (Flores 2016)
 RW2 = 1.1167*10^8;                                  %Table 2 (Flores 2016)
 Cwk = 1.0163*10^-8;                                 %Table 2 (Flores 2016)
 
+L = 0.231745693419459;
+R = 0.0117542467502781;
+RW1 = 11672188.9876804;
+RW2 = 110825572.563458;
+Cwk = 1.01406378445226e-08;
+bet = 0.00174707638017433;
+E = 400*10^3;
+v = 0.5;        
+h = (1-v^2)/(E*bet);
+
 %% Importing the data from the Flores plots
 load('automeris/uper_thoracic_aorta/UTA_BC.csv')
 load('automeris/uper_thoracic_aorta/Inlet_pressure.csv')

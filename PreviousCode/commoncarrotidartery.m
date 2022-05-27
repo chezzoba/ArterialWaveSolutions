@@ -16,17 +16,17 @@ RW1 = 2.4875*10^8;                                  %Table 1 (Flores 2016)
 RW2 = 1.8697*10^9;                                  %Table 1 (Flores 2016)
 Cwk = 1.7529*10^-10;                                %Table 1 (Flores 2016)
 
-L = 0.137567253452003;
-R = 0.003149851511623;
-bet = 0.002926714942618;
-                                     %Table 1 (Flores 2016)
+L = 0.139467775850962;
+R = 0.00298937029503352;
+bet = 0.00341884603442744;
+                                     Table 1 (Flores 2016)
 rho = 1060;                                         %Table 1 (Flores 2016)
 E = 700*10^3;                                       %Table 1 (Flores 2016)
 v = 0.5;
 h = (1-v^2)/(E*bet); 
-RW1 = 2.675665541226389e+08;                                  %Table 1 (Flores 2016)
-RW2 = 1.857928833953230e+09;                                  %Table 1 (Flores 2016)
-Cwk = 1.738892224976952e-10;                                %Table 1 (Flores 2016)
+RW1 = 273076051.267355;                                  %Table 1 (Flores 2016)
+RW2 = 1852305574.71689;                                  %Table 1 (Flores 2016)
+Cwk = 1.74814291325816e-10;                                %Table 1 (Flores 2016)
 
 %% Importing the data from the Flores plots
 load('automeris/common_carotid_artery/CC_inlet_BC.csv')
