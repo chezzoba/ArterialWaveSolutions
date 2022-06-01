@@ -140,7 +140,7 @@ for ih = 0:nh
     x1 = 0;    %Inlet of parent vessel
     s1 = (R1-tan(a)*x1)/sin(a);
     [J_13_s1,Y_13s1,J_43s1,Y_43s1,fs1] = besselfunctions(a,s1,omega(ih),E1,rho1,v1,h1);
-    Y_s1 = (2*pi*(1-cos(a)))*(fs1/rho1)^0.5*s1^2.5;
+    Y_s1 = (2*pi*(1-cos(a)))*(fs1/rho1)^0.5*s1^2.5; 
     Q1(ih) = (Y_s1*(s1^-0.5)*(J_43s1+B1_A1*Y_43s1))/(Y_s0*(s0^-0.5)*(J_43s0+B1_A1*Y_43s0));
     P1(ih) = -((s1^-0.5)*((J_13_s1)+B1_A1*Y_13s1))/(1i*Y_s0*(s0^-0.5)*(J_43s0+B1_A1*Y_43s0));
     
