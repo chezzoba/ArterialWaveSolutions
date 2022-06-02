@@ -28,6 +28,9 @@ classdef BifurcationModel
         RW23 = 3.1013*10^9;
         Cwk3 = 3.6664*10^-10;
 
+        % Assumption
+        asbi = false; % Assume both daughter vessels the same
+
         % Data
         ao_mid_flow = load('PreviousCode/grabit/ao_mid_flow.mat').ao_mid_flow;
         Inlet_ao_Pressure = load('PreviousCode/automeris/bifurcation/Inlet_ao_Pressure.csv');
@@ -57,17 +60,27 @@ classdef BifurcationModel
             R2 = obj.R2;
             beta2 = obj.be2;
 
-            L3 = obj.L3;
-            R3 = obj.R3;
-            beta3 = obj.be3;
-
             RW1 = obj.RW1;
             RW2 = obj.RW2;
             Cwk = obj.Cwk;
-            RW13 = obj.RW13;
-            RW23 = obj.RW23;
-            Cwk3 = obj.Cwk3;
 
+            if (obj.asbi)
+                L3 = L2;
+                R3 = R2;
+                beta3 = beta2;
+    
+                RW13 = RW1;
+                RW23 = RW2;
+                Cwk3 = Cwk;
+            else
+                L3 = obj.L3;
+                R3 = obj.R3;
+                beta3 = obj.be3;
+    
+                RW13 = obj.RW13;
+                RW23 = obj.RW23;
+                Cwk3 = obj.Cwk3;
+            end
 
             c1 = (1/(beta1*rho1*2*R1))^0.5;
             Y1 = (pi*R1^2)/(rho1*c1);

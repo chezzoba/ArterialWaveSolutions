@@ -7,22 +7,24 @@ scaler = MinMaxScaler(xmin, xmax);
 
 problem = OptimisationProblem(BifurcationModel, params, scaler);
 
-measurements = 0;
+measurements = 1;
 
 switch (measurements)
     case (0)
         problem.optimiser = NelderMeadSimplex;
-        problem.optimiser.x0Tol = 5;
+        problem.optimiser.x0Tol = 7;
         problem.optimiser.lenX = length(params);
         problem.optimiser.epochs = 30;
+        problem.model.asbi = true;
         
         [xpred, errP, erract, nguesses] = problem.fitsolution(0)
     case (1)
         problem.optimiser = ConOptimisation;
         problem.optimiser.x0Tol = 0.5;
         problem.optimiser.lenX = length(params);
-        problem.optimiser.StepTolerance = 4e-4;
-        problem.optimiser.TolFun = 2e-3;
+        problem.optimiser.StepTolerance = 1e-4;
+        problem.optimiser.TolFun = 4e-3;
+        problem.model.asbi = true;
 
         [xpred, errP, erract, nguesses] = problem.fitmeasurements(0)
 end

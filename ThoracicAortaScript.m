@@ -16,6 +16,7 @@ switch (measurements)
         problem.optimiser.x0Tol = 5;
         problem.optimiser.epochs = 10;
         
+        
         [xpred, errP, erract, nguesses] = problem.fitsolution(0)
     case (1)
         problem.optimiser = ConOptimisation;

@@ -46,6 +46,47 @@ RW13 = 6.8123*10^7;
 RW23 = 3.1013*10^9;
 Cwk3 = 3.6664*10^-10;
 
+% Optimised Values
+
+% E1 = 500*10^3;                                       %Table 3 (Flores 2016)
+% rho1 = 1060;                                         %Table 3 (Flores 2016)
+% v1 = 0.5;                                            %Table 3 (Flores 2016)
+% be1 = 0.00107412679934682;
+% h1 = 0.75/(E1*be1);                                    %Table 3 (Flores 2016)
+% R1 = 0.00895572408393668;
+% L1 = 0.105806045268162;
+% c1 = ((E1*h1)/((1-v1^2)*rho1*2*R1))^0.5;
+% Y1 = (pi*R1^2)/(rho1*c1);
+% 
+% %Daughter vessels (2) and (3)
+% E2 = 700*10^3;                                       %Table 3 (Flores 2016)
+% rho2 = 1060;                                         %Table 3 (Flores 2016)
+% v2 = 0.5;                                            %Table 3 (Flores 2016)
+% be2 = 0.00104673896585901;
+% h2 = 0.75/(E2*be2);                                     %Table 3 (Flores 2016)
+% R2 = 0.00592762150465316;
+% L2 = 0.133512189773607;
+% c2 = ((E2*h2)/((1-v2^2)*rho2*2*R2))^0.5;
+% Y2 = (pi*R2^2)/(rho2*c2);
+% Y3 = Y2;
+% 
+% 
+% E3 = E2;                                       %Table 3 (Flores 2016)
+% rho3 = 1060;                                         %Table 3 (Flores 2016)
+% v3 = 0.5;                                            %Table 3 (Flores 2016)
+% h3 = h2;                                     %Table 3 (Flores 2016)
+% R3 = R2;
+% L3 = L2;
+% 
+% %Impedence calculation data
+% RW1 = 86210920.7522733;
+% RW2 = 3077962905.34146;
+% Cwk = 3.54153142218048e-10;
+% 
+% RW13 = RW1;
+% RW23 = RW2;
+% Cwk3 = Cwk;
+
 %% Importing the data from the Flores plots
 load('grabit/ao_mid_flow.mat')
 load('automeris/bifurcation/Inlet_ao_Pressure.csv')
