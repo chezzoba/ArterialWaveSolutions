@@ -19,6 +19,7 @@ classdef CommonCarotidModel
         outlet_pressure = load('PreviousCode/automeris/common_carotid_artery/outlet_pressure.csv');
         CC_mid = load('PreviousCode/grabit/CC_mid.mat').CC_mid;
         CC_outlet = load('PreviousCode/grabit/CC_outlet.mat').CC_outlet;
+        optsol = 0;
     end
     
     methods
@@ -105,7 +106,8 @@ classdef CommonCarotidModel
                 Q1outlet(ih) = -(1i*Y_s1*(s1^-0.5)*(A1tilda*J_43s1+B1tilda*Y_43s1));
                 P1outlet(ih) = ((s1^-0.5)*(A1tilda*J_13s1+B1tilda*Y_13s1));
             end
-            sol = [P1; Q1mid; P1mid; Q1outlet; P1outlet];
+
+            sols = [P1; Q1mid; P1mid; Q1outlet; P1outlet];
 
             %% Inverse Fourier
             q1 = zeros(size(t)) + real(Q1(1)*F(1));
@@ -172,8 +174,20 @@ classdef CommonCarotidModel
             
             end
             erroroutletflow = mean(errmid);
-            toterr = erroroutletflow + erroroutletpressure + errormidflow +...
-                errormidpressure + errorinletpressure;
+            errs = [errorinletpressure, errormidflow, errormidpressure,...
+                erroroutletflow, erroroutletpressure];
+
+            if (all(obj.optsol) ~= 0)
+                toterr = 0;
+                sol = [];
+                for s = obj.optsol
+                    toterr = toterr + errs(s);
+                    sol = [sol; sols(:, s)];
+                end
+            else
+                toterr = sum(errs);
+                sol = sols;
+            end
         end
 
         function err = globalerr(obj, xp, scaler, params, actsol)

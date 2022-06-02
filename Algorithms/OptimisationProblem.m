@@ -32,7 +32,7 @@ classdef OptimisationProblem
         end
 
         function [xpred, errP, erract, nguesses] = fitsolution(obj, x0)
-            fun = @(x) obj.model.globalerr(x, obj.scaler, obj.params);
+            fun = @(x) obj.model.globalerr(x, obj.scaler, obj.params, obj.model.model());
             erract = fun(obj.scaler.transform(obj.xact));
             [xpred, nguesses] = obj.optimiser.fit(fun, x0);
             xpredt = obj.scaler.inv_transform(xpred);

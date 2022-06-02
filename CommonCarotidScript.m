@@ -9,13 +9,14 @@ scaler = MinMaxScaler(xmin, xmax);
 problem = OptimisationProblem(CommonCarotidModel, params, scaler);
 
 
-measurements = 1;
+measurements = 0;
 
 switch (measurements)
     case (0)
         problem.optimiser = NelderMeadSimplex;
-        problem.optimiser.x0Tol = 4;
+        problem.optimiser.x0Tol = 1;
         problem.optimiser.epochs = 8;
+        problem.model.optsol = [4];
         
         [xpred, errP, erract, nguesses] = problem.fitsolution(0)
     case (1)
