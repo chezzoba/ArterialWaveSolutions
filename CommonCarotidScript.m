@@ -9,14 +9,14 @@ scaler = MinMaxScaler(xmin, xmax);
 problem = OptimisationProblem(CommonCarotidModel, params, scaler);
 
 
-measurements = 0;
+measurements = 1;
 
 switch (measurements)
     case (0)
         problem.optimiser = NelderMeadSimplex;
         problem.optimiser.x0Tol = 1;
         problem.optimiser.epochs = 8;
-        problem.model.optsol = [4];
+        problem.model.optsol = [2, 3];
         
         [xpred, errP, erract, nguesses] = problem.fitsolution(0)
     case (1)
@@ -24,6 +24,7 @@ switch (measurements)
         problem.optimiser.x0Tol = 0.05;
         problem.optimiser.StepTolerance = 1e-4;
         problem.optimiser.TolFun = 2e-4;
+        problem.model.optsol = [2, 3];
 
         [xpred, errP, erract, nguesses] = problem.fitmeasurements(0)
 end
