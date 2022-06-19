@@ -24,6 +24,7 @@ classdef OptimisationProblem
         function [xpred, errP, erract, nguesses] = fitmeasurements(obj, x0)
             %METHOD1 Summary of this method goes here
             %   Detailed explanation goes here
+            obj.optimiser.lenX = length(obj.params);
             fun = @(x) obj.model.measurementerr(x, obj.scaler, obj.params);
             erract = fun(obj.scaler.transform(obj.xact));
             [xpred, nguesses] = obj.optimiser.fit(fun, x0);
@@ -32,7 +33,9 @@ classdef OptimisationProblem
         end
 
         function [xpred, errP, erract, nguesses] = fitsolution(obj, x0)
-            fun = @(x) obj.model.globalerr(x, obj.scaler, obj.params, obj.model.model());
+            sol = obj.model.model();
+            obj.optimiser.lenX = length(obj.params);
+            fun = @(x) obj.model.globalerr(x, obj.scaler, obj.params, sol);
             erract = fun(obj.scaler.transform(obj.xact));
             [xpred, nguesses] = obj.optimiser.fit(fun, x0);
             xpredt = obj.scaler.inv_transform(xpred);
