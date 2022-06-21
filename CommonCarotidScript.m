@@ -17,9 +17,9 @@ measurements = 0;
 switch (measurements)
     case (0)
         problem.optimiser = NelderMeadSimplex;
-        problem.optimiser.x0Tol = 1;
-        problem.optimiser.epochs = 8;
-        problem.model.optsol = [2, 3];
+        problem.optimiser.x0Tol = 0.001;
+        problem.optimiser.epochs = 10;
+        problem.model.optsol = [2];
         
         [xpred, errP, erract, nguesses] = problem.fitsolution(0)
     case (1)

@@ -19,7 +19,7 @@ Cwk = 1.7529*10^-10;                                %Table 1 (Flores 2016)
 L = 0.139467775850962;
 R = 0.00298937029503352;
 bet = 0.00341884603442744;
-                                     Table 1 (Flores 2016)
+                                     %Table 1 (Flores 2016)
 rho = 1060;                                         %Table 1 (Flores 2016)
 E = 700*10^3;                                       %Table 1 (Flores 2016)
 v = 0.5;
