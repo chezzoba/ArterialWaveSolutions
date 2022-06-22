@@ -3,7 +3,7 @@ classdef SingleVessel
     %   Detailed explanation goes here
     
     properties
-        type = 3; % 2, 3 or 5
+        type = 3; % 1, 2, 3 or 5
         R;
         L;
         a;
@@ -36,17 +36,37 @@ classdef SingleVessel
         end
 
         function Yv = Y(obj, s)
-            Yv = 2 * pi * (1 - cos(obj.a)) * sqrt(obj.f / obj.rho) * s^2.5; 
+            Yv = 2 * pi * (1 - cos(obj.a)) * sqrt(obj.f() / obj.rho) * s^2.5; 
         end
 
         function zv = z(obj, s, omega)
             zv = (2/3) * omega * sqrt(obj.rho * obj.f()) * s^1.5;
         end
 
-        function [B_A, Yeff, A, B] = backpropagate(obj, omega, Yeff_2)
-            [Yeff, A, B] = deal(0, 0, 0);
-            
+        function [B_A, Yeff, A] = backpropagate(obj, omega, Yeff_2)
+            [Yeff, A] = deal(0, 0);
+
             switch (obj.type)
+                case 1
+                    %Impedance Z 
+                    Z = (obj.RW1 + obj.RW2 - ...
+                        1i*omega*obj.RW1*obj.RW2*obj.Cwk)....
+                        / (1-1i*omega*obj.RW2*obj.Cwk);
+                
+                    %Bessel functions at s1out
+                    s1out = obj.s(obj.L);
+                    [J_13_s1out,Y_13s1out,J_43s1out,Y_43s1out,fs1out] =...
+                        besselfunctions(obj.a,s1out,omega,obj.rho,obj.beta); 
+                    Y_s1out = obj.Y(s1out);
+                    
+                    B_A = -(J_13_s1out+1i*Y_s1out*J_43s1out*Z)/...
+                        (Y_13s1out+1i*Y_s1out*Y_43s1out*Z);
+
+                    %Bessel functions at s1in
+                    s1in = obj.s(0);
+                    [J_13_s1in,Y_13s1in,J_43s1in,Y_43s1in,fs1in] = besselfunctions(obj.a,s1in,omega,obj.rho,obj.beta); 
+                    Y_s1in = (2*pi*(1-cos(obj.a)))*(fs1in/obj.rho)^0.5*s1in^2.5;
+                    A = -1/(1i*Y_s1in*(s1in^-0.5)*(J_43s1in+B_A*Y_43s1in));
                 case 2
                     %Impedance Z 
                     Z = (obj.RW1 + obj.RW2 - ...
@@ -88,12 +108,20 @@ classdef SingleVessel
                     [J_13_s1in,Y_13s1in,J_43s1in,Y_43s1in,fs1in] = besselfunctions(obj.a,s1in,omega,obj.rho,obj.beta); 
                     Y_s1in = (2*pi*(1-cos(obj.a)))*(fs1in/obj.rho)^0.5*s1in^2.5;
                     A = -1/(1i*Y_s1in*(s1in^-0.5)*(J_43s1in+B_A*Y_43s1in));
-                    B = B_A*A;
             end
         end
 
-        function [] = forwardpropagate(obj, omega)
-            
+        function [Q, P, A] = forwardpropagate(obj, s, omega, B_A, A, P0outi)
+            switch (obj.type)
+                case {2, 3}
+                    [Q, P, A] = vessel(P0outi,obj.L,obj.R,obj.a,omega,obj.rho,obj.beta,B_A);
+                case {1, 5}
+                    B = B_A * A;
+                    [J_13s1,Y_13s1,J_43s1,Y_43s1,~] = besselfunctions(obj.a,s,omega,obj.rho,obj.beta); 
+                    Y_s1 = obj.Y(s);
+                    Q = -(1i*Y_s1*(s^-0.5)*(A*J_43s1+B*Y_43s1));
+                    P = ((s^-0.5)*(A*J_13s1+B*Y_13s1));
+            end
         end
     end
 end
