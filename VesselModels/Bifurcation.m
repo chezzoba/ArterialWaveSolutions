@@ -24,7 +24,7 @@ classdef Bifurcation
 
         function outs = backpropagate(obj, omega, Yeff_3)
             %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
+            %   Detailed explanation goes hereB3_A3
             switch (obj.type)
                 case 2
                      [B1_A1,B2_A2,B3_A3,Yeff_1] = type_II_bifurcation(...
@@ -55,10 +55,10 @@ classdef Bifurcation
             end
         end
 
-        function [Q2out, P2out, Q3out, P3out] = forwardpropagate(obj, B2_A2, B3_A3, P1outi, omega)
-            [Q3out, P3out] = vessel(P1outi,obj.Ls(3),obj.Rs(3),obj.as(3),omega,obj.rho,obj.betas(3),B3_A3);
+        function [Q2out, P2out, A2, Q3out, P3out, A3] = forwardpropagate(obj, B2_A2, B3_A3, P1outi, omega)
+            [Q3out, P3out, A3] = vessel(P1outi,obj.Ls(3),obj.Rs(3),obj.as(3),omega,obj.rho,obj.betas(3),B3_A3);
     
-            [Q2out, P2out] = vessel(P1outi,obj.Ls(2),obj.Rs(2),obj.as(2),omega,obj.rho,obj.betas(2),B2_A2);
+            [Q2out, P2out, A2] = vessel(P1outi,obj.Ls(2),obj.Rs(2),obj.as(2),omega,obj.rho,obj.betas(2),B2_A2);
         end
     end
 end
