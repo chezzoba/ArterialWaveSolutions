@@ -15,12 +15,11 @@ classdef SingleVessel
     end
     
     methods
-        function obj = SingleVessel(R, L, a, beta, rho, WKP)
+        function obj = SingleVessel(R, L, a, be, rho, WKP)
             %SINGLEVESSEL Construct an instance of this class
             %   Detailed explanation goes here
-            obj.type = type;
             [obj.R, obj.L, obj.a, obj.beta, obj.rho] = ...
-                deal(R, L, a, beta, rho);
+                deal(R, L, a, be, rho);
             [obj.RW1, obj.RW2, obj.Cwk] = deal(WKP(1), WKP(2), WKP(3));
 
         end
@@ -111,12 +110,11 @@ classdef SingleVessel
             end
         end
 
-        function [Q, P, A] = forwardpropagate(obj, s, omega, B_A, A, P0outi)
+        function [Q, P, A] = forwardpropagate(obj, s, omega, B_A, A, B, P0outi)
             switch (obj.type)
                 case {2, 3}
                     [Q, P, A] = vessel(P0outi,obj.L,obj.R,obj.a,omega,obj.rho,obj.beta,B_A);
                 case {1, 5}
-                    B = B_A * A;
                     [J_13s1,Y_13s1,J_43s1,Y_43s1,~] = besselfunctions(obj.a,s,omega,obj.rho,obj.beta); 
                     Y_s1 = obj.Y(s);
                     Q = -(1i*Y_s1*(s^-0.5)*(A*J_43s1+B*Y_43s1));

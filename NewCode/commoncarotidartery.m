@@ -1,41 +1,40 @@
 %% This is programme to calculate for the common carrotid artery
 clc;
 clear;
+addpath('../VesselModels/');
 
 %% Defining the constant parameters of the problem
 a = 0.001;                                          %Very small angle
 
 %Properties
-L = 126*10^-3;                                      %Table 1 (Flores 2016)
-R = 3*10^-3;                                        %Table 1 (Flores 2016)
-h = 0.3*10^-3;                                      %Table 1 (Flores 2016)
-rho = 1060;                                         %Table 1 (Flores 2016)
-E = 700*10^3;                                       %Table 1 (Flores 2016)
-v = 0.5;        
-RW1 = 2.4875*10^8;                                  %Table 1 (Flores 2016)
-RW2 = 1.8697*10^9;                                  %Table 1 (Flores 2016)
-Cwk = 1.7529*10^-10;                                %Table 1 (Flores 2016)
-
-% L = 0.139467775850962;
-% R = 0.00298937029503352;
-% bet = 0.00341884603442744;
-%                                      %Table 1 (Flores 2016)
+% L = 126*10^-3;                                      %Table 1 (Flores 2016)
+% R = 3*10^-3;                                        %Table 1 (Flores 2016)
+% h = 0.3*10^-3;                                      %Table 1 (Flores 2016)
 % rho = 1060;                                         %Table 1 (Flores 2016)
 % E = 700*10^3;                                       %Table 1 (Flores 2016)
-% v = 0.5;
-% h = (1-v^2)/(E*bet); 
-% RW1 = 273076051.267355;                                  %Table 1 (Flores 2016)
-% RW2 = 1852305574.71689;                                  %Table 1 (Flores 2016)
-% Cwk = 1.74814291325816e-10;                                %Table 1 (Flores 2016)
+% v = 0.5;        
+% RW1 = 2.4875*10^8;                                  %Table 1 (Flores 2016)
+% RW2 = 1.8697*10^9;                                  %Table 1 (Flores 2016)
+% Cwk = 1.7529*10^-10;                                %Table 1 (Flores 2016)
+% be = (1 - v^2)/(E*h);
+
+L = 0.139467775850962;
+R = 0.00298937029503352;
+be = 0.00341884603442744;
+                                     %Table 1 (Flores 2016)
+rho = 1060;                                         %Table 1 (Flores 2016)
+RW1 = 273076051.267355;                                  %Table 1 (Flores 2016)
+RW2 = 1852305574.71689;                                  %Table 1 (Flores 2016)
+Cwk = 1.74814291325816e-10;                                %Table 1 (Flores 2016)
 
 %% Importing the data from the Flores plots
-load('automeris/common_carotid_artery/CC_inlet_BC.csv')
-load('automeris/common_carotid_artery/inlet_pressure.csv')
-load('automeris/common_carotid_artery/mid_pressure.csv')
-load('automeris/common_carotid_artery/outlet_pressure.csv')
-load('automeris/common_carotid_artery/pin_pout.csv')
-load('grabit/CC_mid.mat')
-load('grabit/CC_outlet.mat')
+load('../PreviousCode/automeris/common_carotid_artery/CC_inlet_BC.csv')
+load('../PreviousCode/automeris/common_carotid_artery/inlet_pressure.csv')
+load('../PreviousCode/automeris/common_carotid_artery/mid_pressure.csv')
+load('../PreviousCode/automeris/common_carotid_artery/outlet_pressure.csv')
+load('../PreviousCode/automeris/common_carotid_artery/pin_pout.csv')
+load('../PreviousCode/grabit/CC_mid.mat')
+load('../PreviousCode/grabit/CC_outlet.mat')
 
 x = CC_inlet_BC(1:end,1);                            %Extracting the time data to a vector
 y = CC_inlet_BC(1:end,2)*10^-6;                      %Extracting the Q data to a vector
@@ -54,81 +53,34 @@ F = fft(Qin(1:N))/N;
 om = 2*pi/T;
 nh = N/2;
 
-%% Frequency domain calculations
-for ih = 0:nh  
-     
-  if ih == 0 
-      
-      omega(ih+1) = 10^-10;                               %Assining a very small value to ω to avoid singularity
-      
-  else
-      omega(ih+1) = -ih*om;                               
-      
-  end
-  ih=ih+1;
-%% Backward Propagation 
-    
-    %Impedance Z 
-    Z = (RW1+RW2-1i*omega(ih)*RW1*RW2*Cwk)/(1-1i*omega(ih)*RW2*Cwk);
+artery = SingleVessel(R, L, a, be, rho, [RW1, RW2, Cwk]);
+artery.type = 1;
 
-    %Bessel functions at s1out
-    s1out = (R-tan(a)*L)/sin(a);
-    [J_13_s1out,Y_13s1out,J_43s1out,Y_43s1out,fs1out] = besselfunctions(a,s1out,omega(ih),E,rho,v,h); 
-    Y_s1out = (2*pi*(1-cos(a)))*(fs1out/rho)^0.5*s1out^2.5;
-    
-    B1_A1 = -(J_13_s1out+1i*Y_s1out*J_43s1out*Z)/(Y_13s1out+1i*Y_s1out*Y_43s1out*Z);
-    
-    s1in = (R-tan(a)*0)/sin(a);
-    [J_13_s1in,Y_13s1in,J_43s1in,Y_43s1in,fs1in] = besselfunctions(a,s1in,omega(ih),E,rho,v,h); 
-    Y_s1in = (2*pi*(1-cos(a)))*(fs1in/rho)^0.5*s1in^2.5;
-    A1tilda = -1/(1i*Y_s1in*(s1in^-0.5)*(J_43s1in+B1_A1*Y_43s1in));
-    B1tilda = B1_A1*A1tilda;
-  
-%% Forward Propagation     
-    x1 = 0;
-    s1 = (R-tan(a)*x1)/sin(a);
-    [J_13s1,Y_13s1,J_43s1,Y_43s1,fs1] = besselfunctions(a,s1,omega(ih),E,rho,v,h); 
-    Y_s1 = (2*pi*(1-cos(a)))*(fs1/rho)^0.5*s1^2.5;
-    Q1(ih) = -(1i*Y_s1*(s1^-0.5)*(A1tilda*J_43s1+B1tilda*Y_43s1));
-    P1(ih) = ((s1^-0.5)*(A1tilda*J_13s1+B1tilda*Y_13s1));
-    
-    x1 = L/2;
-    s1 = (R-tan(a)*x1)/sin(a);
-    [J_13s1,Y_13s1,J_43s1,Y_43s1,fs1] = besselfunctions(a,s1,omega(ih),E,rho,v,h); 
-    Y_s1 = (2*pi*(1-cos(a)))*(fs1/rho)^0.5*s1^2.5;
-    Q1mid(ih) = -(1i*Y_s1*(s1^-0.5)*(A1tilda*J_43s1+B1tilda*Y_43s1));
-    P1mid(ih) = ((s1^-0.5)*(A1tilda*J_13s1+B1tilda*Y_13s1));
-    
-    x1 = L;
-    s1 = (R-tan(a)*x1)/sin(a);
-    [J_13s1,Y_13s1,J_43s1,Y_43s1,fs1] = besselfunctions(a,s1,omega(ih),E,rho,v,h); 
-    Y_s1 = (2*pi*(1-cos(a)))*(fs1/rho)^0.5*s1^2.5;
-    Q1outlet(ih) = -(1i*Y_s1*(s1^-0.5)*(A1tilda*J_43s1+B1tilda*Y_43s1));
-    P1outlet(ih) = ((s1^-0.5)*(A1tilda*J_13s1+B1tilda*Y_13s1));
-    
+omegas = -om * (0:nh);
+omegas(1) = 1e-10;
+
+for ih=1:nh+1
+    [B_A, Yeff, A] = artery.backpropagate(omegas(ih), 0);
+
+    xin = 0;
+    [Q1(ih), P1(ih)] = artery.forwardpropagate(artery.s(xin), omegas(ih), B_A, A, 0);
+
+    xmid = artery.L/2;
+    [Q1mid(ih), P1mid(ih)] = artery.forwardpropagate(artery.s(xmid), omegas(ih), B_A, A, 0);
+
+    xout = artery.L;
+    [Q1outlet(ih), P1outlet(ih)] = artery.forwardpropagate(artery.s(xout), omegas(ih), B_A, A, 0);
+
 end
-
+sols = [Q1; P1; Q1mid; P1mid; Q1outlet; P1outlet];
+solt = InverseFourierTransform(t, omegas, sols, F);
 %% Inverse Fourier
-q1 = zeros(size(t)) + real(Q1(1)*F(1));
-p1 = zeros(size(t)) + real(P1(1)*F(1));
-q1mid = zeros(size(t)) + real(Q1mid(1)*F(1));
-p1mid = zeros(size(t)) + real(P1mid(1)*F(1));
-q1outlet = zeros(size(t)) + real(Q1outlet(1)*F(1));
-p1outlet = zeros(size(t)) + real(P1outlet(1)*F(1));
-
- for ih = 1:nh
-     
-        
-      q1 = q1 + real(Q1(ih+1)*2*F(ih+1)*exp(-1i*omega(ih+1)*t));
-      p1 = p1 + real(P1(ih+1)*2*F(ih+1)*exp(-1i*omega(ih+1)*t));
-        
-      q1mid = q1mid + real(Q1mid(ih+1)*2*F(ih+1)*exp(-1i*omega(ih+1)*t));
-      p1mid = p1mid + real(P1mid(ih+1)*2*F(ih+1)*exp(-1i*omega(ih+1)*t));
-      
-      q1outlet = q1outlet + real(Q1outlet(ih+1)*2*F(ih+1)*exp(-1i*omega(ih+1)*t));
-      p1outlet = p1outlet + real(P1outlet(ih+1)*2*F(ih+1)*exp(-1i*omega(ih+1)*t));
-
- end
+q1 = solt(1, :);
+p1 = solt(2, :);
+q1mid = solt(3, :);
+p1mid = solt(4, :);
+q1outlet = solt(5, :);
+p1outlet = solt(6, :);
  
 
 %% Error calculations
@@ -140,6 +92,7 @@ for i = 2:length(t)-2
     errinlet(i) = abs((yiinletpressure(i) - p1(i))/(yiinletpressure(i)))^2;
 
 end
+
 errorinletpressure = sqrt(mean(errinlet));
 
 yimidpressure = interp1q(mid_pressure(1:end,1),mid_pressure(1:end,2),xi);
