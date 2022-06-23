@@ -34,7 +34,7 @@ load('automeris/aorta/imma_outlet_18_Pressure.csv')
 load('automeris/aorta/riliac_outlet_19_flow.csv')
 load('automeris/aorta/riliac_outlet_19_Pressure.csv')
 
-
+tic
 x = BC(1:end,1);
 y = BC(1:end,2)*10^-6;
 N = length(y);
@@ -252,7 +252,7 @@ for ih = 1:nh
 
 end
 
-
+toc
 %% Error calculations
 %Average
 yiliacoutletpressure = interp1q(riliac_outlet_19_Pressure(1:end,1),riliac_outlet_19_Pressure(1:end,2),xi);

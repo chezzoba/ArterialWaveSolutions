@@ -59,19 +59,17 @@ artery.type = 1;
 omegas = -om * (0:nh);
 omegas(1) = 1e-10;
 
-for ih=1:nh+1
-    [B_A, Yeff, A] = artery.backpropagate(omegas(ih), 0);
 
-    xin = 0;
-    [Q1(ih), P1(ih)] = artery.forwardpropagate(artery.s(xin), omegas(ih), B_A, A, 0);
+[B_A, Yeff, A] = artery.backpropagate(omegas, 0);
+xin = 0;
+[Q1, P1] = artery.forwardpropagate(artery.s(xin), omegas, B_A, A, 0);
 
-    xmid = artery.L/2;
-    [Q1mid(ih), P1mid(ih)] = artery.forwardpropagate(artery.s(xmid), omegas(ih), B_A, A, 0);
+xmid = artery.L/2;
+[Q1mid, P1mid] = artery.forwardpropagate(artery.s(xmid), omegas, B_A, A, 0);
 
-    xout = artery.L;
-    [Q1outlet(ih), P1outlet(ih)] = artery.forwardpropagate(artery.s(xout), omegas(ih), B_A, A, 0);
+xout = artery.L;
+[Q1outlet, P1outlet] = artery.forwardpropagate(artery.s(xout), omegas, B_A, A, 0);
 
-end
 sols = [Q1; P1; Q1mid; P1mid; Q1outlet; P1outlet];
 solt = InverseFourierTransform(t, omegas, sols, F);
 %% Inverse Fourier

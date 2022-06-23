@@ -49,8 +49,8 @@ classdef SingleVessel
                 case 1
                     %Impedance Z 
                     Z = (obj.RW1 + obj.RW2 - ...
-                        1i*omega*obj.RW1*obj.RW2*obj.Cwk)....
-                        / (1-1i*omega*obj.RW2*obj.Cwk);
+                        1i .* omega .* obj.RW1 .* obj.RW2 .* obj.Cwk)....
+                        ./ (1-1i .* omega.*obj.RW2 .* obj.Cwk);
                 
                     %Bessel functions at s1out
                     s1out = obj.s(obj.L);
@@ -58,14 +58,14 @@ classdef SingleVessel
                         besselfunctions(obj.a,s1out,omega,obj.rho,obj.beta); 
                     Y_s1out = obj.Y(s1out);
                     
-                    B_A = -(J_13_s1out+1i*Y_s1out*J_43s1out*Z)/...
-                        (Y_13s1out+1i*Y_s1out*Y_43s1out*Z);
+                    B_A = -(J_13_s1out+1i .* Y_s1out .* J_43s1out .* Z) ./...
+                        (Y_13s1out+1i .* Y_s1out .* Y_43s1out .* Z);
 
                     %Bessel functions at s1in
                     s1in = obj.s(0);
                     [J_13_s1in,Y_13s1in,J_43s1in,Y_43s1in,fs1in] = besselfunctions(obj.a,s1in,omega,obj.rho,obj.beta); 
-                    Y_s1in = (2*pi*(1-cos(obj.a)))*(fs1in/obj.rho)^0.5*s1in^2.5;
-                    A = -1/(1i*Y_s1in*(s1in^-0.5)*(J_43s1in+B_A*Y_43s1in));
+                    Y_s1in = obj.Y(s1in);
+                    A = -1 ./ (1i .* Y_s1in .* (s1in .^ -0.5) .* (J_43s1in+B_A .* Y_43s1in));
                 case 2
                     %Impedance Z 
                     Z = (obj.RW1 + obj.RW2 - ...
@@ -91,34 +91,35 @@ classdef SingleVessel
                     s4out = obj.s(obj.L);
                     [J_13s4out,Y_13s4out,J_43s4out,Y_43s4out,fs4out] = besselfunctions(obj.a,s4out,omega,obj.rho,obj.beta);    
                     Y_s4out = (2*pi*(1-cos(obj.a)))*(fs4out/obj.rho)^0.5*s4out^2.5;
-                    B_A = -(1i*Y_s4out*J_43s4out+Yeff_2*J_13s4out)/(Yeff_2*Y_13s4out+1i*Y_s4out*Y_43s4out);
+                    B_A = -(1i.*Y_s4out.*J_43s4out+Yeff_2.*J_13s4out)./(Yeff_2.*Y_13s4out+1i.*Y_s4out.*Y_43s4out);
                     
                     s4in = obj.s(0);
                     [J_13s4in,Y_13s4in,J_43s4in,Y_43s4in,fs4in] = besselfunctions(obj.a,s4in,omega,obj.rho,obj.beta);      
                     Y_s4in = (2*pi*(1-cos(obj.a)))*(fs4in/obj.rho)^0.5*s4in^2.5;
-                    Yeff = -1i*Y_s4in*(J_43s4in+B_A*Y_43s4in)/(J_13s4in+B_A*Y_13s4in);
+                    Yeff = -1i.*Y_s4in.*(J_43s4in+B_A.*Y_43s4in)./(J_13s4in+B_A.*Y_13s4in);
                 case 5
                     s4out = obj.s(obj.L);
                     [J_13s4out,Y_13s4out,J_43s4out,Y_43s4out,fs4out] = besselfunctions(obj.a,s4out,omega,obj.rho,obj.beta);    
                     Y_s4out = (2*pi*(1-cos(obj.a)))*(fs4out/obj.rho)^0.5*s4out^2.5;
-                    B_A = -(1i*Y_s4out*J_43s4out+Yeff_2*J_13s4out)/(Yeff_2*Y_13s4out+1i*Y_s4out*Y_43s4out);
+                    B_A = -(1i.*Y_s4out.*J_43s4out+Yeff_2.*J_13s4out)./(Yeff_2.*Y_13s4out+1i.*Y_s4out.*Y_43s4out);
 
                     s1in = obj.s(0);
                     [J_13_s1in,Y_13s1in,J_43s1in,Y_43s1in,fs1in] = besselfunctions(obj.a,s1in,omega,obj.rho,obj.beta); 
                     Y_s1in = (2*pi*(1-cos(obj.a)))*(fs1in/obj.rho)^0.5*s1in^2.5;
-                    A = -1/(1i*Y_s1in*(s1in^-0.5)*(J_43s1in+B_A*Y_43s1in));
+                    A = -1./(1i.*Y_s1in.*(s1in^-0.5).*(J_43s1in+B_A.*Y_43s1in));
             end
         end
 
-        function [Q, P, A] = forwardpropagate(obj, s, omega, B_A, A, B, P0outi)
+        function [Q, P, A] = forwardpropagate(obj, s, omega, B_A, A, P0outi)
             switch (obj.type)
                 case {2, 3}
                     [Q, P, A] = vessel(P0outi,obj.L,obj.R,obj.a,omega,obj.rho,obj.beta,B_A);
                 case {1, 5}
+                    B = B_A .* A;
                     [J_13s1,Y_13s1,J_43s1,Y_43s1,~] = besselfunctions(obj.a,s,omega,obj.rho,obj.beta); 
                     Y_s1 = obj.Y(s);
-                    Q = -(1i*Y_s1*(s^-0.5)*(A*J_43s1+B*Y_43s1));
-                    P = ((s^-0.5)*(A*J_13s1+B*Y_13s1));
+                    Q = -(1i.*Y_s1.*(s^-0.5).*(A.*J_43s1+B.*Y_43s1));
+                    P = ((s^-0.5).*(A.*J_13s1+B.*Y_13s1));
             end
         end
     end
