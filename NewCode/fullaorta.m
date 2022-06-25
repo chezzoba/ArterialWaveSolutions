@@ -37,7 +37,7 @@ load('../PreviousCode/automeris/aorta/imma_outlet_18_Pressure.csv')
 load('../PreviousCode/automeris/aorta/riliac_outlet_19_flow.csv')
 load('../PreviousCode/automeris/aorta/riliac_outlet_19_Pressure.csv')
 
-tic
+
 
 bi10_19_20 = Bifurcation([R(10), R(19), R(20)], [L(10), L(19), L(20)],...
     [be(10), be(19), be(20)], rho, [a(10), a(19), a(20)],...
@@ -45,45 +45,40 @@ bi10_19_20 = Bifurcation([R(10), R(19), R(20)], [L(10), L(19), L(20)],...
 
 bi10_19_20.type = 2;
 
-bi9_10_18 = Bifurcation([R(9), R(18), R(10)], [L(9), L(18), L(10)],...
+bi9_18_10 = Bifurcation([R(9), R(18), R(10)], [L(9), L(18), L(10)],...
     [be(9), be(18), be(10)], rho, [a(9), a(18), a(10)],...
     RW1(18), RW2(18), CWK(18));
 
-bi8_9_17 = Bifurcation([R(8), R(17), R(9)], [L(8), L(17), L(9)],...
+bi8_17_9 = Bifurcation([R(8), R(17), R(9)], [L(8), L(17), L(9)],...
     [be(8), be(17), be(9)], rho, [a(8), a(17), a(9)],...
     RW1(17), RW2(17), CWK(17));
 
-bi7_8_16 = Bifurcation([R(7), R(16), R(8)], [L(7), L(16), L(8)],...
+bi7_16_8 = Bifurcation([R(7), R(16), R(8)], [L(7), L(16), L(8)],...
     [be(7), be(16), be(8)], rho, [a(7), a(16), a(8)],...
     RW1(16), RW2(16), CWK(16));
 
-bi6_7_15 = Bifurcation([R(6), R(15), R(7)], [L(6), L(15), L(7)],...
+bi6_15_7 = Bifurcation([R(6), R(15), R(7)], [L(6), L(15), L(7)],...
     [be(6), be(15), be(7)], rho, [a(6), a(15), a(7)],...
     RW1(15), RW2(15), CWK(15));
 
-bi5_6_14 = Bifurcation([R(5), R(14), R(6)], [L(5), L(14), L(6)],...
+bi5_14_6 = Bifurcation([R(5), R(14), R(6)], [L(5), L(14), L(6)],...
     [be(5), be(14), be(6)], rho, [a(5), a(14), a(6)],...
     RW1(14), RW2(14), CWK(14));
 
-ves4 = SingleVessel(R(4), L(4), a(4), be(4), rho, [0, 0, 0]);
-
-ves5 = SingleVessel(R(5), L(5), a(5), be(5), rho, [0, 0, 0]);
-
-bi3_4_13 = Bifurcation([R(3), R(13), R(4)], [L(3), L(13), L(4)],...
+bi3_13_4 = Bifurcation([R(3), R(13), R(4)], [L(3), L(13), L(4)],...
     [be(3), be(13), be(4)], rho, [a(3), a(13), a(4)],...
     RW1(13), RW2(13), CWK(13));
 
-bi2_3_12 = Bifurcation([R(2), R(12), R(3)], [L(2), L(12), L(3)],...
+ves4 = bi3_13_4.vessel(3);
+
+bi2_12_3 = Bifurcation([R(2), R(12), R(3)], [L(2), L(12), L(3)],...
     [be(2), be(12), be(3)], rho, [a(2), a(12), a(3)],...
     RW1(12), RW2(12), CWK(12));
 
-bi1_2_11 = Bifurcation([R(1), R(11), R(2)], [L(1), L(11), L(2)],...
+bi1_11_2 = Bifurcation([R(1), R(11), R(2)], [L(1), L(11), L(2)],...
     [be(1), be(11), be(2)], rho, [a(1), a(11), a(2)],...
     RW1(11), RW2(11), CWK(11));
-bi1_2_11.type = 5;
-
-ves1 = SingleVessel(R(1), L(1), a(1), be(1), rho, [0, 0, 0]);
-ves1.type = 5;
+bi1_11_2.type = 5;
 
 x = BC(1:end,1);
 y = BC(1:end,2)*10^-6;
@@ -113,76 +108,96 @@ omegas(1) = 1e-10;
 %% Backward Propagation  
 
 %10-19-20 --> Type II Bifurcation
-[B19_A19, B10_A10, Yeff_10, B20_A20] = bi10_19_20.backpropagate(omegas, 0);
+[bi10_19_20, Yeff_10] = bi10_19_20.backpropagate(omegas, 0);
 
-%9-10-18 --> Type III Bifurcation
-[B18_A18, B9_A9, Yeff_9] = bi9_10_18.backpropagate(omegas, Yeff_10);
+%9-18-10 --> Type III Bifurcation
+[bi9_18_10, Yeff_9] = bi9_18_10.backpropagate(omegas, Yeff_10);
+bi9_18_10.B3_A3 = bi10_19_20.B1_A1;
 
-%8-9-17 --> Type III Bifurcation
-[B17_A17, B8_A8, Yeff_8] = bi8_9_17.backpropagate(omegas, Yeff_9);
+%8-17-9 --> Type III Bifurcation
+[bi8_17_9, Yeff_8] = bi8_17_9.backpropagate(omegas, Yeff_9);
+bi8_17_9.B3_A3 = bi9_18_10.B1_A1;
 
-%7-8-16 --> Type III Bifurcation
-[B16_A16, B7_A7, Yeff_7] = bi7_8_16.backpropagate(omegas, Yeff_8);
+%7-16-8 --> Type III Bifurcation
+[bi7_16_8, Yeff_7] = bi7_16_8.backpropagate(omegas, Yeff_8);
+bi7_16_8.B3_A3 = bi8_17_9.B1_A1;
 
-%6-7-15 --> Type III Bifurcation
-[B15_A15, B6_A6, Yeff_6] = bi6_7_15.backpropagate(omegas, Yeff_7);
+%6-15-7 --> Type III Bifurcation
+[bi6_15_7, Yeff_6] = bi6_15_7.backpropagate(omegas, Yeff_7);
+bi6_15_7.B3_A3 = bi7_16_8.B1_A1;
 
-%5-6-14 --> Type III Bifurcation
-[B14_A14, B5_A5, Yeff_5] = bi5_6_14.backpropagate(omegas, Yeff_6);
+%5-14-6 --> Type III Bifurcation
+[bi5_14_6, Yeff_5] = bi5_14_6.backpropagate(omegas, Yeff_6);
+bi5_14_6.B3_A3 = bi6_15_7.B1_A1;
 
 %4-5 --> Two connected vessels
-[B4_A4, Yeff_4] = ves4.backpropagate(omegas, Yeff_5);
+[ves4, Yeff_4] = ves4.backpropagate(omegas, Yeff_5);
 
-%3-4-13 --> Type III Bifurcation  
-[B13_A13, B3_A3, Yeff_3] = bi3_4_13.backpropagate(omegas, Yeff_4);
+%3-13-4 --> Type III Bifurcation  
+[bi3_13_4, Yeff_3] = bi3_13_4.backpropagate(omegas, Yeff_4);
+bi3_13_4.B3_A3 = ves4.B_A;
 
-%2-3-12 --> Type III Bifurcation    
-[B12_A12, B2_A2, Yeff_2] = bi2_3_12.backpropagate(omegas, Yeff_3);
+%2-12-3 --> Type III Bifurcation    
+[bi2_12_3, Yeff_2] = bi2_12_3.backpropagate(omegas, Yeff_3);
+bi2_12_3.B3_A3 = bi3_13_4.B1_A1;
 
-%1-2-11 --> Type V Bifurcation 
-[B11_A11, ~, ~, ~, B1, A1] = bi1_2_11.backpropagate(omegas, Yeff_2);
+%1-11-2 --> Type V Bifurcation 
+bi1_11_2 = bi1_11_2.backpropagate(omegas, Yeff_2);
+bi1_11_2.B3_A3 = bi2_12_3.B1_A1;
 
 %% Forward Propagation 
 %Inlet of vessel 1
-x1 = 0;
-[Q1, P1] = ves1.forwardpropagate(ves1.s(x1), omegas, B1./A1, A1, 0);
+ves1 = bi1_11_2.vessel(1);
+
+[Q1, P1] = ves1.forwardpropagate(ves1.s(0), 0);
 
 %Outlet of vessel 1
-x1 = L(1);
-[Q1out, P1out] = ves1.forwardpropagate(ves1.s(x1), omegas, B1./A1, A1, 0);
+[Q1out, P1out] = ves1.forwardpropagate(ves1.s(ves1.L), 0);
 
 % Brachiocephalic and AO II
-[Q11out, P11out, Q2out, P2out] = bi1_2_11.forwardpropagate(B11_A11, B2_A2, P1out, omegas);
+[Q11out, P11out, Q2out, P2out] = bi1_11_2.forwardpropagate(P1out);
 
 %L com. carotid and AO III
-[Q12out, P12out, Q3out, P3out] = bi2_3_12.forwardpropagate(B12_A12, B3_A3, P2out, omegas);
+[Q12out, P12out, Q3out, P3out] = bi2_12_3.forwardpropagate(P2out);
 
 %Left subclavian and AO IV
-[Q13out, P13out, Q4out, P4out] = bi3_4_13.forwardpropagate(B13_A13, B4_A4, P3out, omegas);
+[Q13out, P13out, Q4out, P4out] = bi3_13_4.forwardpropagate(P3out);
 
 %AO V
-[Q5out, P5out] = ves5.forwardpropagate(ves5.s(ves5.L), omegas, B5_A5, 0, P4out);
+ves5 = bi5_14_6.vessel(1);
+[Q5out, P5out] = ves5.forwardpropagate(ves5.s(ves5.L), P4out);
 
 %AO VI
-[Q14out, P14out, Q6out, P6out] = bi5_6_14.forwardpropagate(B14_A14, B6_A6, P5out, omegas);
+[Q14out, P14out, Q6out, P6out] = bi5_14_6.forwardpropagate(P5out);
 
 %Sup. mesenteric and AO VII
-[Q15out, P15out, Q7out, P7out] = bi6_7_15.forwardpropagate(B15_A15, B7_A7, P6out, omegas);
+[Q15out, P15out, Q7out, P7out] = bi6_15_7.forwardpropagate(P6out);
 
 %Renal and AO VIII
-[Q16out, P16out, Q8out, P8out] = bi7_8_16.forwardpropagate(B16_A16, B8_A8, P7out, omegas);
+[Q16out, P16out, Q8out, P8out] = bi7_16_8.forwardpropagate(P7out);
 
 %AO IX and 17
-[Q17out, P17out, Q9out, P9out] = bi8_9_17.forwardpropagate(B17_A17, B9_A9, P8out, omegas);
+[Q17out, P17out, Q9out, P9out] = bi8_17_9.forwardpropagate(P8out);
 
 %Inf. mesenteric and AO X
-[Q18out, P18out, Q10out, P10out] = bi9_10_18.forwardpropagate(B18_A18, B10_A10, P9out, omegas);
+[Q18out, P18out, Q10out, P10out] = bi9_18_10.forwardpropagate(P9out);
 
 %R com. iliac
-[Q19out, P19out, Q20out, P20out] = bi10_19_20.forwardpropagate(B19_A19, B20_A20, P10out, omegas);
+[Q19out, P19out, Q20out, P20out] = bi10_19_20.forwardpropagate(P10out);
 
 
 %% Inverse Fourier
+% sols = [Q1; P1; Q11out; P11out; Q12out; P12out; Q13out; P13out;
+%     Q15out; P15out; Q16out; P16out; Q18out; P18out; Q19out; P19out];
+% 
+% solt = InverseFourierTransform(t, omegas, sols, F);
+% 
+% [q1, p1, q11, p11, q12, p12] = deal(solt(1, :), solt(2, :), solt(3, :), solt(4, :), solt(5, :), solt(6, :));
+% [q13, p13, q15, p15, q16, p16] = deal(solt(7, :), solt(8, :), solt(9, :), solt(10, :), solt(11, :), solt(12, :));
+% [q18, p18, q19, p19] = deal(solt(13, :), solt(14, :), solt(15, :), solt(16, :));
+%% Inverse Fourier
+
+omega = omegas;
 q1 = zeros(size(t)) + real(Q1(1)*F(1));
 p1 = zeros(size(t)) + real(P1(1)*F(1));
 q11 = zeros(size(t)) + real(Q11out(1)*F(1));
@@ -199,8 +214,6 @@ q18 = zeros(size(t)) + real(Q18out(1)*F(1));
 p18 = zeros(size(t)) + real(P18out(1)*F(1));
 q19 = zeros(size(t)) + real(Q19out(1)*F(1));
 p19 = zeros(size(t)) + real(P19out(1)*F(1));
-
-omega = omegas;
 
 for ih = 1:nh
      
@@ -224,7 +237,7 @@ for ih = 1:nh
 
 
 end
-toc
+
 
 %% Error calculations
 %Average

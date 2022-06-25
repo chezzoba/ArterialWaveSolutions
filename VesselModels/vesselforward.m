@@ -1,4 +1,4 @@
-function [Q,P,A,B] = vessel(Pout,L,R,a,omega,rho,beta,B_A)
+function [Q,P,A,B] = vesselforward(Pout,L,R,a,omega,rho,beta,B_A)
 
     xin = 0;
     s1in = (R-tan(a)*xin)/sin(a);
