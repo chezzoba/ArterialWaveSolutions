@@ -53,22 +53,22 @@ F = fft(Qin(1:N))/N;
 om = 2*pi/T;
 nh = N/2;
 
-artery = SingleVessel(R, L, a, be, rho, [RW1, RW2, Cwk]);
+artery = Vessel(R, L, a, be, rho, [RW1, RW2, Cwk]);
 artery.type = 1;
 
 omegas = -om * (0:nh);
 omegas(1) = 1e-10;
 
 
-[B_A, Yeff, A] = artery.backpropagate(omegas, 0);
+artery = artery.backpropagate(omegas, 0);
 xin = 0;
-[Q1, P1] = artery.forwardpropagate(artery.s(xin), omegas, B_A, A, 0);
+[Q1, P1] = artery.forwardpropagate(artery.s(xin), 0);
 
 xmid = artery.L/2;
-[Q1mid, P1mid] = artery.forwardpropagate(artery.s(xmid), omegas, B_A, A, 0);
+[Q1mid, P1mid] = artery.forwardpropagate(artery.s(xmid), 0);
 
 xout = artery.L;
-[Q1outlet, P1outlet] = artery.forwardpropagate(artery.s(xout), omegas, B_A, A, 0);
+[Q1outlet, P1outlet] = artery.forwardpropagate(artery.s(xout), 0);
 
 sols = [Q1; P1; Q1mid; P1mid; Q1outlet; P1outlet];
 solt = InverseFourierTransform(t, omegas, sols, F);
@@ -124,14 +124,6 @@ for i = 2:length(t)-2
 
 end
 erroroutletflow = sqrt(mean(errmid));
-
-%MAX
-emaxmidflow = max(abs((q1mid(2:end-1)-yimidflow(2:end-1)*10^-6)/max(yimidflow(2:end-1)*10^-6)));
-emaxoutflow = max(abs((q1outlet(2:end-1)-yioutletflow(2:end-1)*10^-6)/max(yioutletflow(2:end-1)*10^-6)));
-emaxinletpressure = max(abs((p1(2:end-1)-yiinletpressure(2:end-1))/max(yiinletpressure(2:end-1))));
-emaxmidpressure = max(abs((p1mid(2:end-1)-yimidpressure(2:end-1))/max(yimidpressure(2:end-1))));
-emaxoutpressure = max(abs((p1outlet(2:end-1)-yioutletpressure(2:end-1))/max(yioutletpressure(2:end-1))));
-
 
 %SYS
 esysmidflow = (max(q1mid(2:end-1)-max(yimidflow(2:end-1))*10^-6))/max(yimidflow(2:end-1)*10^-6);
@@ -195,9 +187,7 @@ t2.FontSize = fontxt2;
 txt = ['avg%: ',num2str(round(errormidflow*100,2))];
 t1 = text(0.8,10.5,txt);
 t1.FontSize = fontxt;
-txt = ['max%: ',num2str(round(emaxmidflow*100,2))];
-t1 = text(0.8,9.5,txt);
-t1.FontSize = fontxt;
+
 txt = ['sys%: ',num2str(round(esysmidflow*100,2))];
 t1 = text(0.8,8.5,txt);
 t1.FontSize = fontxt;
@@ -231,9 +221,7 @@ t2.FontSize = fontxt2;
 txt = ['avg%: ',num2str(round(erroroutletflow*100,2))];
 t1 = text(0.8,10.5,txt);
 t1.FontSize = fontxt;
-txt = ['max%: ',num2str(round(emaxoutflow*100,2))];
-t1 = text(0.8,9.5,txt);
-t1.FontSize = fontxt;
+
 txt = ['sys%: ',num2str(round(esysoutflow*100,2))];
 t1 = text(0.8,8.5,txt);
 t1.FontSize = fontxt;
@@ -266,9 +254,7 @@ t2.FontSize = fontxt2;
 txt = ['avg%: ',num2str(round(errorinletpressure*100,2))];
 t1 = text(0.8,16.4,txt);
 t1.FontSize = fontxt;
-txt = ['max%: ',num2str(round(emaxinletpressure*100,2))];
-t1 = text(0.8,15.7,txt);
-t1.FontSize = fontxt;
+
 txt = ['sys%: ',num2str(round(esysinletpressure*100,2))];
 t1 = text(0.8,15,txt);
 t1.FontSize = fontxt;
@@ -302,9 +288,7 @@ t2.FontSize = fontxt2;
 txt = ['avg%: ',num2str(round(errormidpressure*100,2))];
 t1 = text(0.8,16.4,txt);
 t1.FontSize = fontxt;
-txt = ['max%: ',num2str(round(emaxmidpressure*100,2))];
-t1 = text(0.8,15.7,txt);
-t1.FontSize = fontxt;
+
 txt = ['sys%: ',num2str(round(esysmidpressure*100,2))];
 t1 = text(0.8,15,txt);
 t1.FontSize = fontxt;
@@ -338,9 +322,7 @@ t2.FontSize = fontxt2;
 txt = ['avg%: ',num2str(round(erroroutletpressure*100,2))];
 t1 = text(0.8,16.4,txt);
 t1.FontSize = fontxt;
-txt = ['max%: ',num2str(round(emaxoutpressure*100,2))];
-t1 = text(0.8,15.7,txt);
-t1.FontSize = fontxt;
+
 txt = ['sys%: ',num2str(round(esysoutpressure*100,2))];
 t1 = text(0.8,15,txt);
 t1.FontSize = fontxt;
@@ -375,9 +357,7 @@ t2.FontSize = fontxt2;
 txt = ['avg%: ',num2str(round(erroroutletpressure*100,2))];
 t1 = text(0.8,16.4,txt);
 t1.FontSize = fontxt;
-txt = ['max%: ',num2str(round(emaxoutpressure*100,2))];
-t1 = text(0.8,15.7,txt);
-t1.FontSize = fontxt;
+
 txt = ['sys%: ',num2str(round(esysoutpressure*100,2))];
 t1 = text(0.8,15,txt);
 t1.FontSize = fontxt;
