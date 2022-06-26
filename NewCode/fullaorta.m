@@ -3,7 +3,7 @@ clc;
 clear;
 addpath('../VesselModels/');
 
-plotting = false;
+plotting = true;
 
 tic
 %% Flores et all (2016) and Nan Xiao et al (2013), Table 5 and Table IV, Parameters of the full-aorta model
@@ -122,7 +122,7 @@ bi8_17_9 = bi8_17_9.backpropagate(bi9_18_10);
 %7-16-8 --> Type III Bifurcation
 bi7_16_8 = bi7_16_8.backpropagate(bi8_17_9);
 
-%6-15-7 --> Type III Bifurcationzi
+%6-15-7 --> Type III Bifurcation
 bi6_15_7 = bi6_15_7.backpropagate(bi7_16_8);
 
 %5-14-6 --> Type III Bifurcation

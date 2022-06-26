@@ -2,7 +2,7 @@
 clear;
 clc;
 
-plotting = false;
+plotting = true;
 
 tic
 %% Flores et all (2016) and Nan Xiao et al (2013), Table 5 and Table IV, Parameters of the full-aorta model
