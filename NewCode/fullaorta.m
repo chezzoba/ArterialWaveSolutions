@@ -3,7 +3,7 @@ clc;
 clear;
 addpath('../VesselModels/');
 
-plotting = true;
+plotting = false;
 
 tic
 %% Flores et all (2016) and Nan Xiao et al (2013), Table 5 and Table IV, Parameters of the full-aorta model
@@ -83,30 +83,7 @@ bi1_11_2 = Bifurcation([R(1), R(11), R(2)], [L(1), L(11), L(2)],...
     RW1(11), RW2(11), CWK(11));
 bi1_11_2.type = 5;
 
-x = BC(1:end,1);
-y = BC(1:end,2)*10^-6;
-N = length(y);
-T = BC(end,1);
-xi = (x(1):T/((N)):T)';
-yi = interp1q(x,y,xi);
-Qin = yi(1:end);
-t = xi(1:end);
-N = length(Qin);
-
-%% Fourier Transform
-F = fft(Qin(1:N))/N;
-
-
-% Define the fundamental harmonic omega and the number of harmonics
-om = 2*pi/T;
-nh = N/2;
-
-
-%% Calculations in the freequency domain
-omegas = om * (0:nh);
-omegas(1) = 1e-10;
-
-
+[omegas, F, t] = Vessel.ProcessBC(BC);
    
 %% Backward Propagation  
 
@@ -114,84 +91,86 @@ omegas(1) = 1e-10;
 bi10_19_20 = bi10_19_20.backpropagate(omegas);
 
 %9-18-10 --> Type III Bifurcation
-bi9_18_10 = bi9_18_10.backpropagate(bi10_19_20);
+bi9_18_10 = bi9_18_10.backpropagate(omegas, bi10_19_20);
 
 %8-17-9 --> Type III Bifurcation
-bi8_17_9 = bi8_17_9.backpropagate(bi9_18_10);
+bi8_17_9 = bi8_17_9.backpropagate(omegas, bi9_18_10);
 
 %7-16-8 --> Type III Bifurcation
-bi7_16_8 = bi7_16_8.backpropagate(bi8_17_9);
+bi7_16_8 = bi7_16_8.backpropagate(omegas, bi8_17_9);
 
 %6-15-7 --> Type III Bifurcation
-bi6_15_7 = bi6_15_7.backpropagate(bi7_16_8);
+bi6_15_7 = bi6_15_7.backpropagate(omegas, bi7_16_8);
 
 %5-14-6 --> Type III Bifurcation
-bi5_14_6 = bi5_14_6.backpropagate(bi6_15_7);
+bi5_14_6 = bi5_14_6.backpropagate(omegas, bi6_15_7);
 
 %4-5 --> Two connected vessels
-ves4 = ves4.backpropagate(bi5_14_6);
+ves4 = ves4.backpropagate(omegas, bi5_14_6);
 
 %3-13-4 --> Type III Bifurcation  
-bi3_13_4 = bi3_13_4.backpropagate(ves4);
+bi3_13_4 = bi3_13_4.backpropagate(omegas, ves4);
 
 %2-12-3 --> Type III Bifurcation    
-bi2_12_3 = bi2_12_3.backpropagate(bi3_13_4);
+bi2_12_3 = bi2_12_3.backpropagate(omegas, bi3_13_4);
 
 %1-11-2 --> Type V Bifurcation 
-bi1_11_2 = bi1_11_2.backpropagate(bi2_12_3);
+bi1_11_2 = bi1_11_2.backpropagate(omegas, bi2_12_3);
 
 %% Forward Propagation 
 %Inlet of vessel 1
 ves1 = bi1_11_2.vessel(1);
 
-[Q1, P1] = ves1.forwardpropagate(ves1.s(0), 0);
+[Q1, P1] = ves1.forwardpropagate(omegas, ves1.s(0));
 
 %Outlet of vessel 1
-[Q1out, P1out] = ves1.forwardpropagate(ves1.s(ves1.L), 0);
+[Q1out, P1out] = ves1.forwardpropagate(omegas, ves1.s(ves1.L));
 
 % Brachiocephalic and AO II
-[Q11out, P11out, Q2out, P2out] = bi1_11_2.forwardpropagate(P1out);
+[Q11out, P11out, Q2out, P2out] = bi1_11_2.forwardpropagate(omegas, P1out);
 
 %L com. carotid and AO III
-[Q12out, P12out, Q3out, P3out] = bi2_12_3.forwardpropagate(P2out);
+[Q12out, P12out, Q3out, P3out] = bi2_12_3.forwardpropagate(omegas, P2out);
 
 %Left subclavian and AO IV
-[Q13out, P13out, Q4out, P4out] = bi3_13_4.forwardpropagate(P3out);
+[Q13out, P13out, Q4out, P4out] = bi3_13_4.forwardpropagate(omegas, P3out);
 
 %AO V
 ves5 = bi5_14_6.vessel(1);
-[Q5out, P5out] = ves5.forwardpropagate(ves5.s(ves5.L), P4out);
+[Q5out, P5out] = ves5.forwardpropagate(omegas, ves5.s(ves5.L), P4out);
 
 %AO VI
-[Q14out, P14out, Q6out, P6out] = bi5_14_6.forwardpropagate(P5out);
+[Q14out, P14out, Q6out, P6out] = bi5_14_6.forwardpropagate(omegas, P5out);
 
 %Sup. mesenteric and AO VII
-[Q15out, P15out, Q7out, P7out] = bi6_15_7.forwardpropagate(P6out);
+[Q15out, P15out, Q7out, P7out] = bi6_15_7.forwardpropagate(omegas, P6out);
 
 %Renal and AO VIII
-[Q16out, P16out, Q8out, P8out] = bi7_16_8.forwardpropagate(P7out);
+[Q16out, P16out, Q8out, P8out] = bi7_16_8.forwardpropagate(omegas, P7out);
 
 %AO IX and 17
-[Q17out, P17out, Q9out, P9out] = bi8_17_9.forwardpropagate(P8out);
+[Q17out, P17out, Q9out, P9out] = bi8_17_9.forwardpropagate(omegas, P8out);
 
 %Inf. mesenteric and AO X
-[Q18out, P18out, Q10out, P10out] = bi9_18_10.forwardpropagate(P9out);
+[Q18out, P18out, Q10out, P10out] = bi9_18_10.forwardpropagate(omegas, P9out);
 
 %R com. iliac
-[Q19out, P19out, Q20out, P20out] = bi10_19_20.forwardpropagate(P10out);
+[Q19out, P19out, Q20out, P20out] = bi10_19_20.forwardpropagate(omegas, P10out);
 
 
 % Inverse Fourier Transform
 sols = [Q1; P1; Q11out; P11out; Q12out; P12out; Q13out; P13out;
     Q15out; P15out; Q16out; P16out; Q18out; P18out; Q19out; P19out];
 
-solt = InverseFourierTransform(t, -omegas, conj(sols), F);
+solt = InverseFourierTransform(t, omegas, sols, F);
+
+toc
+
+xi = t;
 
 [q1, p1, q11, p11, q12, p12] = deal(solt(1, :), solt(2, :), solt(3, :), solt(4, :), solt(5, :), solt(6, :));
 [q13, p13, q15, p15, q16, p16] = deal(solt(7, :), solt(8, :), solt(9, :), solt(10, :), solt(11, :), solt(12, :));
 [q18, p18, q19, p19] = deal(solt(13, :), solt(14, :), solt(15, :), solt(16, :));
-
-toc
 
 %% Error calculations
 %Average

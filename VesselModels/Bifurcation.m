@@ -17,7 +17,6 @@ classdef Bifurcation
         B3_A3 = 0;
         A1 = 0;
         B1 = 0;
-        oms = 0;
         Yeff = 0;
     end
     
@@ -29,11 +28,10 @@ classdef Bifurcation
                 [obj.RWK1, obj.RWK2, obj.CWK] = deal(RWK1, RWK2, CWK);
         end
 
-        function obj = backpropagate(obj, inp)
+        function obj = backpropagate(obj, oms, prev)
             
             switch (obj.type)
                 case 2
-                     obj.oms = inp;
                      [obj.B1_A1,obj.B2_A2,obj.B3_A3,obj.Yeff] = type_II_bifurcation(...
                          obj.Rs(1),obj.Rs(2),obj.Rs(3),...
                          obj.Ls(1),obj.Ls(2),obj.Ls(2),...
@@ -41,30 +39,28 @@ classdef Bifurcation
                          obj.RWK1(2),obj.RWK2(2),obj.CWK(2),...
                          obj.betas(1),obj.betas(2),obj.betas(3),...
                          obj.rho,obj.rho,obj.rho,...
-                         obj.oms,obj.as(1),obj.as(2),obj.as(3));
+                         oms,obj.as(1),obj.as(2),obj.as(3));
                 case 3
-                    obj.oms = inp.oms;
-                    obj.B3_A3 = inp.B1_A1;
+                    obj.B3_A3 = prev.B1_A1;
                     [obj.B1_A1,obj.B2_A2,obj.Yeff] = type_III_bifurcation(...
-                        inp.Yeff,obj.Rs(1),obj.Rs(2),obj.Ls(1),obj.Ls(2),...
+                        prev.Yeff,obj.Rs(1),obj.Rs(2),obj.Ls(1),obj.Ls(2),...
                         obj.RWK1,obj.RWK2,obj.CWK,...
                         obj.betas(1),obj.betas(2),...
-                        obj.rho,obj.rho,obj.oms,obj.as(1),obj.as(2));
+                        obj.rho,obj.rho,oms,obj.as(1),obj.as(2));
                 case 5
-                    obj.oms = inp.oms;
-                    obj.B3_A3 = inp.B1_A1;
-                    [obj.A1,obj.B1,obj.B2_A2] = type_V_bifurcation(inp.Yeff,...
+                    obj.B3_A3 = prev.B1_A1;
+                    [obj.A1,obj.B1,obj.B2_A2] = type_V_bifurcation(prev.Yeff,...
                         obj.Rs(1),obj.Rs(2),obj.Ls(1),obj.Ls(2),...
                         obj.RWK1,obj.RWK2,obj.CWK,...
                         obj.betas(1),obj.betas(2),...
-                        obj.rho,obj.rho,obj.oms,obj.as(1),obj.as(2));
+                        obj.rho,obj.rho,oms,obj.as(1),obj.as(2));
             end
         end
 
-        function [Q2out, P2out, Q3out, P3out, A2, A3] = forwardpropagate(obj, P1outi)
-            [Q3out, P3out, A3] = vesselforward(P1outi,obj.Ls(3),obj.Rs(3),obj.as(3),obj.oms,obj.rho,obj.betas(3),obj.B3_A3);
+        function [Q2out, P2out, Q3out, P3out, A2, A3] = forwardpropagate(obj, oms, P1outi)
+            [Q3out, P3out, A3] = vesselforward(P1outi,obj.Ls(3),obj.Rs(3),obj.as(3),oms,obj.rho,obj.betas(3),obj.B3_A3);
     
-            [Q2out, P2out, A2] = vesselforward(P1outi,obj.Ls(2),obj.Rs(2),obj.as(2),obj.oms,obj.rho,obj.betas(2),obj.B2_A2);
+            [Q2out, P2out, A2] = vesselforward(P1outi,obj.Ls(2),obj.Rs(2),obj.as(2),oms,obj.rho,obj.betas(2),obj.B2_A2);
         end
 
         function ves = vessel(obj, n)
@@ -101,7 +97,6 @@ classdef Bifurcation
             ves.B1_A1 = B_A;
             ves.A1 = A;
             ves.type = t;
-            ves.oms = obj.oms;
         end
     end
 end

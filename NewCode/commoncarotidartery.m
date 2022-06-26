@@ -36,42 +36,24 @@ load('../PreviousCode/automeris/common_carotid_artery/pin_pout.csv')
 load('../PreviousCode/grabit/CC_mid.mat')
 load('../PreviousCode/grabit/CC_outlet.mat')
 
-x = CC_inlet_BC(1:end,1);                            %Extracting the time data to a vector
-y = CC_inlet_BC(1:end,2)*10^-6;                      %Extracting the Q data to a vector
-N = length(y);
-T = CC_inlet_BC(end,1);                              %Extracting the period of th signal
-xi = (x(1):T/((N)):T)';                              %Creating an equispaced time vector to be used in the fft
-yi = interp1q(x,y,xi);                               %Interpolating the values of the Q to match the new time vector
-Qin = yi(1:end);                                     %Vector with the values of the BC
-t = xi(1:end);
-N = length(Qin);
-
-%% Fourier Transform
-F = fft(Qin(1:N))/N;
-
-% Define the fundamental harmonic omega and the number of harmonics
-om = 2*pi/T;
-nh = N/2;
+[omegas, F, t, Qin] = Vessel.ProcessBC(CC_inlet_BC);
 
 artery = Vessel(R, L, a, be, rho, [RW1, RW2, Cwk]);
 artery.type = 1;
 
-omegas = -om * (0:nh);
-omegas(1) = 1e-10;
-
-
 artery = artery.backpropagate(omegas);
 xin = 0;
-[Q1, P1] = artery.forwardpropagate(artery.s(xin), 0);
+[Q1, P1] = artery.forwardpropagate(omegas, artery.s(xin));
 
 xmid = artery.L/2;
-[Q1mid, P1mid] = artery.forwardpropagate(artery.s(xmid), 0);
+[Q1mid, P1mid] = artery.forwardpropagate(omegas, artery.s(xmid));
 
 xout = artery.L;
-[Q1outlet, P1outlet] = artery.forwardpropagate(artery.s(xout), 0);
+[Q1outlet, P1outlet] = artery.forwardpropagate(omegas, artery.s(xout));
 
 sols = [Q1; P1; Q1mid; P1mid; Q1outlet; P1outlet];
 solt = InverseFourierTransform(t, omegas, sols, F);
+
 %% Inverse Fourier
 q1 = solt(1, :);
 p1 = solt(2, :);
@@ -79,8 +61,8 @@ q1mid = solt(3, :);
 p1mid = solt(4, :);
 q1outlet = solt(5, :);
 p1outlet = solt(6, :);
- 
 
+xi = t;
 %% Error calculations
 %Average
 
