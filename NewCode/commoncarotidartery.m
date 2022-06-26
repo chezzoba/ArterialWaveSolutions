@@ -7,25 +7,25 @@ addpath('../VesselModels/');
 a = 0.001;                                          %Very small angle
 
 %Properties
-% L = 126*10^-3;                                      %Table 1 (Flores 2016)
-% R = 3*10^-3;                                        %Table 1 (Flores 2016)
-% h = 0.3*10^-3;                                      %Table 1 (Flores 2016)
-% rho = 1060;                                         %Table 1 (Flores 2016)
-% E = 700*10^3;                                       %Table 1 (Flores 2016)
-% v = 0.5;        
-% RW1 = 2.4875*10^8;                                  %Table 1 (Flores 2016)
-% RW2 = 1.8697*10^9;                                  %Table 1 (Flores 2016)
-% Cwk = 1.7529*10^-10;                                %Table 1 (Flores 2016)
-% be = (1 - v^2)/(E*h);
-
-L = 0.139467775850962;
-R = 0.00298937029503352;
-be = 0.00341884603442744;
-                                     %Table 1 (Flores 2016)
+L = 126*10^-3;                                      %Table 1 (Flores 2016)
+R = 3*10^-3;                                        %Table 1 (Flores 2016)
+h = 0.3*10^-3;                                      %Table 1 (Flores 2016)
 rho = 1060;                                         %Table 1 (Flores 2016)
-RW1 = 273076051.267355;                                  %Table 1 (Flores 2016)
-RW2 = 1852305574.71689;                                  %Table 1 (Flores 2016)
-Cwk = 1.74814291325816e-10;                                %Table 1 (Flores 2016)
+E = 700*10^3;                                       %Table 1 (Flores 2016)
+v = 0.5;        
+RW1 = 2.4875*10^8;                                  %Table 1 (Flores 2016)
+RW2 = 1.8697*10^9;                                  %Table 1 (Flores 2016)
+Cwk = 1.7529*10^-10;                                %Table 1 (Flores 2016)
+be = (1 - v^2)/(E*h);
+
+% L = 0.139467775850962;
+% R = 0.00298937029503352;
+% be = 0.00341884603442744;
+%                                      %Table 1 (Flores 2016)
+% rho = 1060;                                         %Table 1 (Flores 2016)
+% RW1 = 273076051.267355;                                  %Table 1 (Flores 2016)
+% RW2 = 1852305574.71689;                                  %Table 1 (Flores 2016)
+% Cwk = 1.74814291325816e-10;                                %Table 1 (Flores 2016)
 
 %% Importing the data from the Flores plots
 load('../PreviousCode/automeris/common_carotid_artery/CC_inlet_BC.csv')
@@ -60,7 +60,7 @@ omegas = -om * (0:nh);
 omegas(1) = 1e-10;
 
 
-artery = artery.backpropagate(omegas, 0);
+artery = artery.backpropagate(omegas);
 xin = 0;
 [Q1, P1] = artery.forwardpropagate(artery.s(xin), 0);
 

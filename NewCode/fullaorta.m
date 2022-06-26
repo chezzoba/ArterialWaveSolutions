@@ -3,6 +3,9 @@ clc;
 clear;
 addpath('../VesselModels/');
 
+plotting = false;
+
+tic
 %% Flores et all (2016) and Nan Xiao et al (2013), Table 5 and Table IV, Parameters of the full-aorta model
 L = [7.0357,0.8,0.9,6.4737,15.2,1.8,0.7,0.7,4.3,4.3,3.4,3.4,3.4,3.2,6,3.2,3.2,5,8.5,8.5]*10^-2;
 Rin = [15.2,13.9,13.7,13.5,12.3,9.9,9.7,9.62,9.55,9.07,6.35,3.6,4.8,4.45,3.75,2.8,2.8,2,6,6]*10^-3;
@@ -108,42 +111,34 @@ omegas(1) = 1e-10;
 %% Backward Propagation  
 
 %10-19-20 --> Type II Bifurcation
-[bi10_19_20, Yeff_10] = bi10_19_20.backpropagate(omegas, 0);
+bi10_19_20 = bi10_19_20.backpropagate(omegas);
 
 %9-18-10 --> Type III Bifurcation
-[bi9_18_10, Yeff_9] = bi9_18_10.backpropagate(omegas, Yeff_10);
-bi9_18_10.B3_A3 = bi10_19_20.B1_A1;
+bi9_18_10 = bi9_18_10.backpropagate(bi10_19_20);
 
 %8-17-9 --> Type III Bifurcation
-[bi8_17_9, Yeff_8] = bi8_17_9.backpropagate(omegas, Yeff_9);
-bi8_17_9.B3_A3 = bi9_18_10.B1_A1;
+bi8_17_9 = bi8_17_9.backpropagate(bi9_18_10);
 
 %7-16-8 --> Type III Bifurcation
-[bi7_16_8, Yeff_7] = bi7_16_8.backpropagate(omegas, Yeff_8);
-bi7_16_8.B3_A3 = bi8_17_9.B1_A1;
+bi7_16_8 = bi7_16_8.backpropagate(bi8_17_9);
 
-%6-15-7 --> Type III Bifurcation
-[bi6_15_7, Yeff_6] = bi6_15_7.backpropagate(omegas, Yeff_7);
-bi6_15_7.B3_A3 = bi7_16_8.B1_A1;
+%6-15-7 --> Type III Bifurcationzi
+bi6_15_7 = bi6_15_7.backpropagate(bi7_16_8);
 
 %5-14-6 --> Type III Bifurcation
-[bi5_14_6, Yeff_5] = bi5_14_6.backpropagate(omegas, Yeff_6);
-bi5_14_6.B3_A3 = bi6_15_7.B1_A1;
+bi5_14_6 = bi5_14_6.backpropagate(bi6_15_7);
 
 %4-5 --> Two connected vessels
-[ves4, Yeff_4] = ves4.backpropagate(omegas, Yeff_5);
+ves4 = ves4.backpropagate(bi5_14_6);
 
 %3-13-4 --> Type III Bifurcation  
-[bi3_13_4, Yeff_3] = bi3_13_4.backpropagate(omegas, Yeff_4);
-bi3_13_4.B3_A3 = ves4.B_A;
+bi3_13_4 = bi3_13_4.backpropagate(ves4);
 
 %2-12-3 --> Type III Bifurcation    
-[bi2_12_3, Yeff_2] = bi2_12_3.backpropagate(omegas, Yeff_3);
-bi2_12_3.B3_A3 = bi3_13_4.B1_A1;
+bi2_12_3 = bi2_12_3.backpropagate(bi3_13_4);
 
 %1-11-2 --> Type V Bifurcation 
-bi1_11_2 = bi1_11_2.backpropagate(omegas, Yeff_2);
-bi1_11_2.B3_A3 = bi2_12_3.B1_A1;
+bi1_11_2 = bi1_11_2.backpropagate(bi2_12_3);
 
 %% Forward Propagation 
 %Inlet of vessel 1
@@ -186,58 +181,17 @@ ves5 = bi5_14_6.vessel(1);
 [Q19out, P19out, Q20out, P20out] = bi10_19_20.forwardpropagate(P10out);
 
 
-%% Inverse Fourier
-% sols = [Q1; P1; Q11out; P11out; Q12out; P12out; Q13out; P13out;
-%     Q15out; P15out; Q16out; P16out; Q18out; P18out; Q19out; P19out];
-% 
-% solt = InverseFourierTransform(t, omegas, sols, F);
-% 
-% [q1, p1, q11, p11, q12, p12] = deal(solt(1, :), solt(2, :), solt(3, :), solt(4, :), solt(5, :), solt(6, :));
-% [q13, p13, q15, p15, q16, p16] = deal(solt(7, :), solt(8, :), solt(9, :), solt(10, :), solt(11, :), solt(12, :));
-% [q18, p18, q19, p19] = deal(solt(13, :), solt(14, :), solt(15, :), solt(16, :));
-%% Inverse Fourier
+% Inverse Fourier Transform
+sols = [Q1; P1; Q11out; P11out; Q12out; P12out; Q13out; P13out;
+    Q15out; P15out; Q16out; P16out; Q18out; P18out; Q19out; P19out];
 
-omega = omegas;
-q1 = zeros(size(t)) + real(Q1(1)*F(1));
-p1 = zeros(size(t)) + real(P1(1)*F(1));
-q11 = zeros(size(t)) + real(Q11out(1)*F(1));
-p11 = zeros(size(t)) + real(P11out(1)*F(1));
-q12 = zeros(size(t)) + real(Q12out(1)*F(1));
-p12 = zeros(size(t)) + real(P12out(1)*F(1));
-q13 = zeros(size(t)) + real(Q13out(1)*F(1));
-p13 = zeros(size(t)) + real(P13out(1)*F(1));
-q15 = zeros(size(t)) + real(Q15out(1)*F(1));
-p15 = zeros(size(t)) + real(P15out(1)*F(1));
-q16 = zeros(size(t)) + real(Q16out(1)*F(1));
-p16 = zeros(size(t)) + real(P16out(1)*F(1));
-q18 = zeros(size(t)) + real(Q18out(1)*F(1));
-p18 = zeros(size(t)) + real(P18out(1)*F(1));
-q19 = zeros(size(t)) + real(Q19out(1)*F(1));
-p19 = zeros(size(t)) + real(P19out(1)*F(1));
+solt = InverseFourierTransform(t, -omegas, conj(sols), F);
 
-for ih = 1:nh
-     
-        
-      q1 = q1 + real(conj(Q1(ih+1))*2*F(ih+1)*exp(1i*omega(ih+1)*t));
-      p1 = p1 + real(conj(P1(ih+1))*2*F(ih+1)*exp(1i*omega(ih+1)*t));
-      p11 = p11 + real(conj(P11out(ih+1))*2*F(ih+1)*exp(1i*omega(ih+1)*t));
-      q11 = q11 + real(conj(Q11out(ih+1))*2*F(ih+1)*exp(1i*omega(ih+1)*t));
-      p12 = p12 + real(conj(P12out(ih+1))*2*F(ih+1)*exp(1i*omega(ih+1)*t));
-      q12 = q12 + real(conj(Q12out(ih+1))*2*F(ih+1)*exp(1i*omega(ih+1)*t));
-      p13 = p13 + real(conj(P13out(ih+1))*2*F(ih+1)*exp(1i*omega(ih+1)*t));
-      q13 = q13 + real(conj(Q13out(ih+1))*2*F(ih+1)*exp(1i*omega(ih+1)*t));
-      p15 = p15 + real(conj(P15out(ih+1))*2*F(ih+1)*exp(1i*omega(ih+1)*t));
-      q15 = q15 + real(conj(Q15out(ih+1))*2*F(ih+1)*exp(1i*omega(ih+1)*t));
-      p16 = p16 + real(conj(P16out(ih+1))*2*F(ih+1)*exp(1i*omega(ih+1)*t));
-      q16 = q16 + real(conj(Q16out(ih+1))*2*F(ih+1)*exp(1i*omega(ih+1)*t));
-      p18 = p18 + real(conj(P18out(ih+1))*2*F(ih+1)*exp(1i*omega(ih+1)*t));
-      q18 = q18 + real(conj(Q18out(ih+1))*2*F(ih+1)*exp(1i*omega(ih+1)*t));
-      p19 = p19 + real(conj(P19out(ih+1))*2*F(ih+1)*exp(1i*omega(ih+1)*t));
-      q19 = q19 + real(conj(Q19out(ih+1))*2*F(ih+1)*exp(1i*omega(ih+1)*t));
+[q1, p1, q11, p11, q12, p12] = deal(solt(1, :), solt(2, :), solt(3, :), solt(4, :), solt(5, :), solt(6, :));
+[q13, p13, q15, p15, q16, p16] = deal(solt(7, :), solt(8, :), solt(9, :), solt(10, :), solt(11, :), solt(12, :));
+[q18, p18, q19, p19] = deal(solt(13, :), solt(14, :), solt(15, :), solt(16, :));
 
-
-end
-
+toc
 
 %% Error calculations
 %Average
@@ -437,568 +391,569 @@ errf = (error11flow+error12flow+error13flow+error15flow+error16flow+error18flow+
 errp = (error11pressure+error12pressure+error13pressure+error15pressure+error16pressure+error18pressure+error19pressure+error1pressure)/8;
 
 %% Plots
-ld = 2.5;
-colour1 = 'b';
-colour2 = 'r';
-fontxt = 21;
-fontxt2 = 21;
-figure
-plot(t,q1*10^6,colour1,'LineWidth',ld)
-grid on
-box on
-ax = gca;
-ax.LineWidth = 2.5;
-t2 = title('Volume flow rate - inlet BC (1)');
-t2.FontSize = fontxt2;
-t2 = xlabel('time (s)');
-t2.FontSize = fontxt2;
-t2 = ylabel('Q (ml/s)');
-t2.FontSize = fontxt2;
-ax = gca;
-ax.GridLineStyle = ':';
-ax.GridAlpha = 0.2;
-ax.Layer = 'top';
-ax.XAxis.FontSize = fontxt2;
-ax.YAxis.FontSize = fontxt2;
-axis([0 1.1,-100 600])
-
-figure
-plot(t,p1*10^-3,colour1,'LineWidth',ld)
-hold on
-plot(Inlet_Pressure(1:end,1),Inlet_Pressure(1:end,2)*10^-3,colour2,'LineWidth',ld);
-grid on
-box on
-ax = gca;
-ax.LineWidth = 2.5;
-t2 = legend('1-D (Present)','3-D');
-t2.FontSize = fontxt2;
-t2 = title('Pressure - inlet (1)');
-t2.FontSize = fontxt2;
-t2 = xlabel('time (s)');
-t2.FontSize = fontxt2;
-t2 = ylabel('P (kPa)');
-t2.FontSize = fontxt2;
-txt = ['avg%: ',num2str(round(error1pressure*100,2))];
-t1 = text(0.7,14.5,txt);
-t1.FontSize = fontxt;
-txt = ['max%: ',num2str(round(emax1pressure*100,2))];
-t1 = text(0.7,13.7,txt);
-t1.FontSize = fontxt;
-txt = ['sys%: ',num2str(round(esys1pressure*100,2))];
-t1 = text(0.7,12.9,txt);
-t1.FontSize = fontxt;
-txt = ['dias%: ',num2str(round(edias1pressure*100,2))];
-t1 = text(0.7,12.1,txt);
-t1.FontSize = fontxt;
-axis([0 1.1,8 17])
-ax = gca;
-ax.GridLineStyle = ':';
-ax.GridAlpha = 0.2;
-ax.Layer = 'top';
-ax.XAxis.FontSize = fontxt2;
-ax.YAxis.FontSize = fontxt2;
-
-figure
-plot(t,q11*10^6,colour1,'LineWidth',ld)
-hold on
-plot(bc_outlet_11_flow(1:end,1),bc_outlet_11_flow(1:end,2),colour2,'LineWidth',ld);
-grid on
-box on
-ax = gca;
-ax.LineWidth = 2.5;
-t2 = legend('1-D (Present)','3-D');
-t2.FontSize = fontxt2;
-t2 = title('Volume flow rate - bc outlet (11)');
-t2.FontSize = fontxt2;
-t2 = xlabel('time (s)');
-t2.FontSize = fontxt2;
-t2 = ylabel('Q (ml/s)');
-t2.FontSize = 13;
-txt = ['avg%: ',num2str(round(error11flow*100,2))];
-t1 = text(0.7,35,txt);
-t1.FontSize = fontxt;
-txt = ['max%: ',num2str(round(emax11flow*100,2))];
-t1 = text(0.7,30,txt);
-t1.FontSize = fontxt;
-txt = ['sys%: ',num2str(round(esys11flow*100,2))];
-t1 = text(0.7,25,txt);
-t1.FontSize = fontxt;
-txt = ['dias%: ',num2str(round(edias11flow*100,2))];
-t1 = text(0.7,20,txt);
-t1.FontSize = fontxt;
-axis([0 1.1,-5 50])
-ax = gca;
-ax.GridLineStyle = ':';
-ax.GridAlpha = 0.2;
-ax.Layer = 'top';
-ax.XAxis.FontSize = fontxt2;
-ax.YAxis.FontSize = fontxt2;
-
-figure
-plot(t,p11*10^-3,colour1,'LineWidth',ld)
-hold on
-plot(bc_outlet_11_Pressure(1:end,1),bc_outlet_11_Pressure(1:end,2)*10^-3,colour2,'LineWidth',ld);
-grid on
-box on
-ax = gca;
-ax.LineWidth = 2.5;
-t2 = legend('1-D (Present)','3-D');
-t2.FontSize = fontxt2;
-t2 = title('Pressure -  bc outlet (11)');
-t2.FontSize = fontxt2;
-t2 = xlabel('time (s)');
-t2.FontSize = fontxt2;
-t2 = ylabel('P (kPa)');
-t2.FontSize = fontxt2;
-txt = ['avg%: ',num2str(round(error11pressure*100,2))];
-t1 = text(0.7,14.5,txt);
-t1.FontSize = fontxt;
-txt = ['max%: ',num2str(round(emax11pressure*100,2))];
-t1 = text(0.7,13.7,txt);
-t1.FontSize = fontxt;
-txt = ['sys%: ',num2str(round(esys11pressure*100,2))];
-t1 = text(0.7,12.9,txt);
-t1.FontSize = fontxt;
-txt = ['dias%: ',num2str(round(edias11pressure*100,2))];
-t1 = text(0.7,12.1,txt);
-t1.FontSize = fontxt;
-axis([0 1.1,8 17])
-ax = gca;
-ax.GridLineStyle = ':';
-ax.GridAlpha = 0.2;
-ax.Layer = 'top';
-ax.XAxis.FontSize = fontxt2;
-ax.YAxis.FontSize = fontxt2;
-
-figure
-plot(t,q12*10^6,colour1,'LineWidth',ld)
-hold on
-plot(lcca_outlet_12_flow(1:end,1),lcca_outlet_12_flow(1:end,2),colour2,'LineWidth',ld)
-grid on
-box on
-ax = gca;
-ax.LineWidth = 2.5;
-t2 = legend('1-D (Present)','3-D');
-t2.FontSize = fontxt2;
-t2 = title('Volume flow rate - lcca outlet (12)');
-t2.FontSize = fontxt2;
-t2 = xlabel('time (s)');
-t2.FontSize = fontxt2;
-t2 = ylabel('Q (ml/s)');
-t2.FontSize = fontxt2;
-txt = ['avg%: ',num2str(round(error12flow*100,2))];
-t1 = text(0.7,9.5,txt);
-t1.FontSize = fontxt;
-txt = ['max%: ',num2str(round(emax12flow*100,2))];
-t1 = text(0.7,7.7,txt);
-t1.FontSize = fontxt;
-txt = ['sys%: ',num2str(round(esys12flow*100,2))];
-t1 = text(0.7,5.9,txt);
-t1.FontSize = fontxt;
-txt = ['dias%: ',num2str(round(edias12flow*100,2))];
-t1 = text(0.7,4.1,txt);
-t1.FontSize = fontxt;
-axis([0 1.1,-5 15])
-ax = gca;
-ax.GridLineStyle = ':';
-ax.GridAlpha = 0.2;
-ax.Layer = 'top';
-ax.XAxis.FontSize = fontxt2;
-ax.YAxis.FontSize = fontxt2;
-
-figure
-plot(t,p12*10^-3,colour1,'LineWidth',ld)
-hold on
-plot(lcca_outlet_12_Pressure(1:end,1),lcca_outlet_12_Pressure(1:end,2)*10^-3,colour2,'LineWidth',ld)
-grid on
-box on
-ax = gca;
-ax.LineWidth = 2.5;
-t2 = legend('1-D (Present)','3-D');
-t2.FontSize = fontxt2;
-t2 = title('Pressure - lcca outlet (12)');
-t2.FontSize = fontxt2;
-t2 = xlabel('time (s)');
-t2.FontSize = fontxt2;
-t2 = ylabel('P (kPa)');
-t2.FontSize = fontxt2;
-txt = ['avg%: ',num2str(round(error12pressure*100,2))];
-t1 = text(0.7,14.5,txt);
-t1.FontSize = fontxt;
-txt = ['max%: ',num2str(round(emax12pressure*100,2))];
-t1 = text(0.7,13.7,txt);
-t1.FontSize = fontxt;
-txt = ['sys%: ',num2str(round(esys12pressure*100,2))];
-t1 = text(0.7,12.9,txt);
-t1.FontSize = fontxt;
-txt = ['dias%: ',num2str(round(edias12pressure*100,2))];
-t1 = text(0.7,12.1,txt);
-t1.FontSize = fontxt;
-axis([0 1.1,8 17])
-ax = gca;
-ax.GridLineStyle = ':';
-ax.GridAlpha = 0.2;
-ax.Layer = 'top';
-ax.XAxis.FontSize = fontxt2;
-ax.YAxis.FontSize = fontxt2;
-
-figure
-plot(t,q13*10^6,colour1,'LineWidth',ld)
-hold on
-plot(lsub_outlet_13_flow(1:end,1),lsub_outlet_13_flow(1:end,2),colour2,'LineWidth',ld)
-grid on
-box on
-ax = gca;
-ax.LineWidth = 2.5;
-t2 = legend('1-D (Present)','3-D');
-t2.FontSize = fontxt2;
-t2 = title('Volume flow rate - lsub outlet (13)');
-t2.FontSize = fontxt2;
-t2 = xlabel('time (s)');
-t2.FontSize = fontxt2;
-t2 = ylabel('Q (ml/s)');
-t2.FontSize = fontxt2;
-txt = ['avg%: ',num2str(round(error13flow*100,2))];
-t1 = text(0.7,35,txt);
-t1.FontSize = fontxt;
-txt = ['max%: ',num2str(round(emax13flow*100,2))];
-t1 = text(0.7,30,txt);
-t1.FontSize = fontxt;
-txt = ['sys%: ',num2str(round(esys13flow*100,2))];
-t1 = text(0.7,25,txt);
-t1.FontSize = fontxt;
-txt = ['dias%: ',num2str(round(edias13flow*100,2))];
-t1 = text(0.7,20,txt);
-t1.FontSize = fontxt;
-axis([0 1.1,-3 50])
-ax = gca;
-ax.GridLineStyle = ':';
-ax.GridAlpha = 0.2;
-ax.Layer = 'top';
-ax.XAxis.FontSize = fontxt2;
-ax.YAxis.FontSize = fontxt2;
-
-figure
-plot(t,p13*10^-3,colour1,'LineWidth',ld)
-hold on
-plot(lsub_outlet_13_Pressure(1:end,1),lsub_outlet_13_Pressure(1:end,2)*10^-3,colour2,'LineWidth',ld)
-grid on
-box on
-ax = gca;
-ax.LineWidth = 2.5;
-t2 = legend('1-D (Present)','3-D');
-t2.FontSize = fontxt2;
-t2 = title('Pressure - lsub outlet (13)');
-t2.FontSize = fontxt2;
-t2 = xlabel('time (s)');
-t2.FontSize = fontxt2;
-t2 = ylabel('P (kPa)');
-t2.FontSize = fontxt2;
-txt = ['avg%: ',num2str(round(error13pressure*100,2))];
-t1 = text(0.7,14.5,txt);
-t1.FontSize = fontxt;
-txt = ['max%: ',num2str(round(emax13pressure*100,2))];
-t1 = text(0.7,13.7,txt);
-t1.FontSize = fontxt;
-txt = ['sys%: ',num2str(round(esys13pressure*100,2))];
-t1 = text(0.7,12.9,txt);
-t1.FontSize = fontxt;
-txt = ['dias%: ',num2str(round(edias13pressure*100,2))];
-t1 = text(0.7,12.1,txt);
-t1.FontSize = fontxt;
-axis([0 1.1,8 17])
-ax = gca;
-ax.GridLineStyle = ':';
-ax.GridAlpha = 0.2;
-ax.Layer = 'top';
-ax.XAxis.FontSize = fontxt2;
-ax.YAxis.FontSize = fontxt2;
-
-figure
-plot(t,q15*10^6,colour1,'LineWidth',ld)
-hold on
-plot(sma_outlet_15_flow(1:end,1),sma_outlet_15_flow(1:end,2),colour2,'LineWidth',ld)
-grid on
-box on
-ax = gca;
-ax.LineWidth = 2.5;
-t2 = legend('1-D (Present)','3-D');
-t2.FontSize = fontxt2;
-t2 = title('Volume flow rate - sma outlet (15)');t2.FontSize = 13;
-t2.FontSize = fontxt2;
-t2 = xlabel('time (s)');
-t2.FontSize = fontxt2;
-t2 = ylabel('Q (ml/s)');
-t2.FontSize = fontxt2;
-txt = ['avg%: ',num2str(round(error15flow*100,2))];
-t1 = text(0.7,35,txt);
-t1.FontSize = fontxt;
-txt = ['max%: ',num2str(round(emax15flow*100,2))];
-t1 = text(0.7,30,txt);
-t1.FontSize = fontxt;
-txt = ['sys%: ',num2str(round(esys15flow*100,2))];
-t1 = text(0.7,25,txt);
-t1.FontSize = fontxt;
-txt = ['dias%: ',num2str(round(edias15flow*100,2))];
-t1 = text(0.7,20,txt);
-t1.FontSize = fontxt;
-axis([0 1.1,-3 50])
-ax = gca;
-ax.GridLineStyle = ':';
-ax.GridAlpha = 0.2;
-ax.Layer = 'top';
-ax.XAxis.FontSize = fontxt2;
-ax.YAxis.FontSize = fontxt2;
-
-figure
-plot(t,p15*10^-3,colour1,'LineWidth',ld)
-hold on
-plot(sma_outlet_15_Pressure(1:end,1),sma_outlet_15_Pressure(1:end,2)*10^-3,colour2,'LineWidth',ld)
-grid on
-box on
-ax = gca;
-ax.LineWidth = 2.5;
-t2 = legend('1-D (Present)','3-D');
-t2.FontSize = fontxt2;
-t2 = title('Pressure - sma outlet (15)');
-t2.FontSize = fontxt2;
-t2 = xlabel('time (s)');
-t2.FontSize = fontxt2;
-t2 = ylabel('P (kPa)');
-t2.FontSize = fontxt2;
-txt = ['avg%: ',num2str(round(error15pressure*100,2))];
-t1 = text(0.7,14.5,txt);
-t1.FontSize = fontxt;
-txt = ['max%: ',num2str(round(emax15pressure*100,2))];
-t1 = text(0.7,13.7,txt);
-t1.FontSize = fontxt;
-txt = ['sys%: ',num2str(round(esys15pressure*100,2))];
-t1 = text(0.7,12.9,txt);
-t1.FontSize = fontxt;
-txt = ['dias%: ',num2str(round(edias15pressure*100,2))];
-t1 = text(0.7,12.1,txt);
-t1.FontSize = fontxt;
-axis([0 1.1,8 17])
-ax = gca;
-ax.GridLineStyle = ':';
-ax.GridAlpha = 0.2;
-ax.Layer = 'top';
-ax.XAxis.FontSize = fontxt2;
-ax.YAxis.FontSize = fontxt2;
-
-figure
-plot(t,q16*10^6,colour1,'LineWidth',ld)
-hold on
-plot(rena_outlet_16_flow(1:end,1),rena_outlet_16_flow(1:end,2),colour2,'LineWidth',ld)
-grid on
-box on
-ax = gca;
-ax.LineWidth = 2.5;
-t2 = legend('1-D (Present)','3-D');
-t2.FontSize = fontxt2;
-t2 = title('Volume flow rate - r ren (16)');
-t2.FontSize = fontxt2;
-t2 = xlabel('time (s)');
-t2.FontSize = fontxt2;
-t2 = ylabel('Q (ml/s)');
-t2.FontSize = fontxt2;
-txt = ['avg%: ',num2str(round(error16flow*100,2))];
-t1 = text(0.7,35,txt);
-t1.FontSize = fontxt;
-txt = ['max%: ',num2str(round(emax16flow*100,2))];
-t1 = text(0.7,30,txt);
-t1.FontSize = fontxt;
-txt = ['sys%: ',num2str(round(esys16flow*100,2))];
-t1 = text(0.7,25,txt);
-t1.FontSize = fontxt;
-txt = ['dias%: ',num2str(round(edias16flow*100,2))];
-t1 = text(0.7,20,txt);
-t1.FontSize = fontxt;
-axis([0 1.1,-3 50])
-ax = gca;
-ax.GridLineStyle = ':';
-ax.GridAlpha = 0.2;
-ax.Layer = 'top';
-ax.XAxis.FontSize = fontxt2;
-ax.YAxis.FontSize = fontxt2;
-
-figure
-plot(t,p16*10^-3,colour1,'LineWidth',ld)
-hold on
-plot(rena_outlet_16_Pressure(1:end,1),rena_outlet_16_Pressure(1:end,2)*10^-3,colour2,'LineWidth',ld)
-grid on
-box on
-ax = gca;
-ax.LineWidth = 2.5;
-t2 = legend('1-D (Present)','3-D');
-t2.FontSize = fontxt2;
-t2 = title('Pressure - r ren (16)');
-t2.FontSize = fontxt2;
-t2 = xlabel('time (s)');
-t2.FontSize = fontxt2;
-t2 = ylabel('P (kPa)');
-t2.FontSize = fontxt2;
-txt = ['avg%: ',num2str(round(error16pressure*100,2))];
-t1 = text(0.7,14.5,txt);
-t1.FontSize = fontxt;
-txt = ['max%: ',num2str(round(emax16pressure*100,2))];
-t1 = text(0.7,13.7,txt);
-t1.FontSize = fontxt;
-txt = ['sys%: ',num2str(round(esys16pressure*100,2))];
-t1 = text(0.7,12.9,txt);
-t1.FontSize = fontxt;
-txt = ['dias%: ',num2str(round(edias16pressure*100,2))];
-t1 = text(0.7,12.1,txt);
-t1.FontSize = fontxt;
-axis([0 1.1,8 17])
-ax = gca;
-ax.GridLineStyle = ':';
-ax.GridAlpha = 0.2;
-ax.Layer = 'top';
-ax.XAxis.FontSize = fontxt2;
-ax.YAxis.FontSize = fontxt2;
-
-figure
-plot(t,q18*10^6,colour1,'LineWidth',ld)
-hold on
-plot(imma_outlet_18_flow(1:end,1),imma_outlet_18_flow(1:end,2),colour2,'LineWidth',ld)
-grid on
-box on
-ax = gca;
-ax.LineWidth = 2.5;
-t2 = legend('1-D (Present)','3-D');
-t2.FontSize = fontxt2;
-t2 = title('Volume flow rate - imma outlet (18)');
-t2.FontSize = fontxt2;
-t2 = xlabel('time (s)');
-t2.FontSize = fontxt2;
-t2 = ylabel('Q (ml/s)');
-t2.FontSize = fontxt2;
-txt = ['avg%: ',num2str(round(error18flow*100,2))];
-t1 = text(0.7,9.2,txt);
-t1.FontSize = fontxt;
-txt = ['max%: ',num2str(round(emax18flow*100,2))];
-t1 = text(0.7,7.5,txt);
-t1.FontSize = fontxt;
-txt = ['sys%: ',num2str(round(esys18flow*100,2))];
-t1 = text(0.7,5.8,txt);
-t1.FontSize = fontxt;
-txt = ['dias%: ',num2str(round(edias18flow*100,2))];
-t1 = text(0.7,4.1,txt);
-t1.FontSize = fontxt;
-axis([0 1.1,-5 15])
-ax = gca;
-ax.GridLineStyle = ':';
-ax.GridAlpha = 0.2;
-ax.Layer = 'top';
-ax.XAxis.FontSize = fontxt2;
-ax.YAxis.FontSize = fontxt2;
-
-figure
-plot(t,p18*10^-3,colour1,'LineWidth',ld)
-hold on
-plot(imma_outlet_18_Pressure(1:end,1),imma_outlet_18_Pressure(1:end,2)*10^-3,colour2,'LineWidth',ld)
-grid on
-box on
-ax = gca;
-ax.LineWidth = 2.5;
-t2 = legend('1-D (Present)','3-D');
-t2.FontSize = fontxt2;
-t2 = title('Pressure - imma outlet (18)');
-t2.FontSize = fontxt2;
-t2 = xlabel('time (s)');
-t2.FontSize = fontxt2;
-t2 = ylabel('P (kPa)');
-t2.FontSize = fontxt2;
-txt = ['avg%: ',num2str(round(error18pressure*100,2))];
-t1 = text(0.7,14.5,txt);
-t1.FontSize = fontxt;
-txt = ['max%: ',num2str(round(emax18pressure*100,2))];
-t1 = text(0.7,13.7,txt);
-t1.FontSize = fontxt;
-txt = ['sys%: ',num2str(round(esys18pressure*100,2))];
-t1 = text(0.7,12.9,txt);
-t1.FontSize = fontxt;
-txt = ['dias%: ',num2str(round(edias18pressure*100,2))];
-t1 = text(0.7,12.1,txt);
-t1.FontSize = fontxt;
-axis([0 1.1,8 17])
-ax = gca;
-ax.GridLineStyle = ':';
-ax.GridAlpha = 0.2;
-ax.Layer = 'top';
-ax.XAxis.FontSize = fontxt2;
-ax.YAxis.FontSize = fontxt2;
-
-figure
-plot(t,q19*10^6,colour1,'LineWidth',ld)
-hold on
-plot(riliac_outlet_19_flow(1:end,1),riliac_outlet_19_flow(1:end,2),colour2,'LineWidth',ld)
-grid on
-box on
-ax = gca;
-ax.LineWidth = 2.5;
-t2 = legend('1-D (Present)','3-D');
-t2.FontSize = fontxt2;
-t2 = title('Volume flow rate - r iliac outlet (19)');
-t2.FontSize = fontxt2;
-t2 = xlabel('time (s)');
-t2.FontSize = fontxt2;
-t2 = ylabel('Q (ml/s)');
-t2.FontSize = fontxt2;
-txt = ['avg%: ',num2str(round(error19flow*100,2))];
-t1 = text(0.7,45,txt);
-t1.FontSize = fontxt;
-txt = ['max%: ',num2str(round(emax19flow*100,2))];
-t1 = text(0.7,37,txt);
-t1.FontSize = fontxt;
-txt = ['sys%: ',num2str(round(esys19flow*100,2))];
-t1 = text(0.7,29,txt);
-t1.FontSize = fontxt;
-txt = ['dias%: ',num2str(round(edias19flow*100,2))];
-t1 = text(0.7,21,txt);
-t1.FontSize = fontxt;
-axis([0 1.1,-25 70])
-ax = gca;
-ax.GridLineStyle = ':';
-ax.GridAlpha = 0.2;
-ax.Layer = 'top';
-ax.XAxis.FontSize = fontxt2;
-ax.YAxis.FontSize = fontxt2;
-
-figure
-plot(t,p19*10^-3,colour1,'LineWidth',ld)
-hold on
-plot(riliac_outlet_19_Pressure(1:end,1),riliac_outlet_19_Pressure(1:end,2)*10^-3,colour2,'LineWidth',ld)
-grid on
-box on
-ax = gca;
-ax.LineWidth = 2.5;
-t2 = legend('1-D (Present)','3-D');
-t2.FontSize = fontxt2;
-t2 = title('Pressure - r iliac outlet (19)');
-t2.FontSize = fontxt2;
-t2 = xlabel('time (s)');
-t2.FontSize = fontxt2;
-t2 = ylabel('P (kPa)');
-t2.FontSize = fontxt2;
-txt = ['avg%: ',num2str(round(error19pressure*100,2))];
-t1 = text(0.7,16,txt);
-t1.FontSize = fontxt;
-txt = ['max%: ',num2str(round(emax19pressure*100,2))];
-t1 = text(0.7,15,txt);
-t1.FontSize = fontxt;
-txt = ['sys%: ',num2str(round(esys19pressure*100,2))];
-t1 = text(0.7,14,txt);
-t1.FontSize = fontxt;
-txt = ['dias%: ',num2str(round(edias19pressure*100,2))];
-t1 = text(0.7,13,txt);
-t1.FontSize = fontxt;
-axis([0 1.1,8 19]);
-ax = gca;
-ax.GridLineStyle = ':';
-ax.GridAlpha = 0.2;
-ax.Layer = 'top';
-ax.XAxis.FontSize = fontxt2;
-ax.YAxis.FontSize = fontxt2;
-
+if (plotting)
+    ld = 2.5;
+    colour1 = 'b';
+    colour2 = 'r';
+    fontxt = 21;
+    fontxt2 = 21;
+    figure
+    plot(t,q1*10^6,colour1,'LineWidth',ld)
+    grid on
+    box on
+    ax = gca;
+    ax.LineWidth = 2.5;
+    t2 = title('Volume flow rate - inlet BC (1)');
+    t2.FontSize = fontxt2;
+    t2 = xlabel('time (s)');
+    t2.FontSize = fontxt2;
+    t2 = ylabel('Q (ml/s)');
+    t2.FontSize = fontxt2;
+    ax = gca;
+    ax.GridLineStyle = ':';
+    ax.GridAlpha = 0.2;
+    ax.Layer = 'top';
+    ax.XAxis.FontSize = fontxt2;
+    ax.YAxis.FontSize = fontxt2;
+    axis([0 1.1,-100 600])
+    
+    figure
+    plot(t,p1*10^-3,colour1,'LineWidth',ld)
+    hold on
+    plot(Inlet_Pressure(1:end,1),Inlet_Pressure(1:end,2)*10^-3,colour2,'LineWidth',ld);
+    grid on
+    box on
+    ax = gca;
+    ax.LineWidth = 2.5;
+    t2 = legend('1-D (Present)','3-D');
+    t2.FontSize = fontxt2;
+    t2 = title('Pressure - inlet (1)');
+    t2.FontSize = fontxt2;
+    t2 = xlabel('time (s)');
+    t2.FontSize = fontxt2;
+    t2 = ylabel('P (kPa)');
+    t2.FontSize = fontxt2;
+    txt = ['avg%: ',num2str(round(error1pressure*100,2))];
+    t1 = text(0.7,14.5,txt);
+    t1.FontSize = fontxt;
+    txt = ['max%: ',num2str(round(emax1pressure*100,2))];
+    t1 = text(0.7,13.7,txt);
+    t1.FontSize = fontxt;
+    txt = ['sys%: ',num2str(round(esys1pressure*100,2))];
+    t1 = text(0.7,12.9,txt);
+    t1.FontSize = fontxt;
+    txt = ['dias%: ',num2str(round(edias1pressure*100,2))];
+    t1 = text(0.7,12.1,txt);
+    t1.FontSize = fontxt;
+    axis([0 1.1,8 17])
+    ax = gca;
+    ax.GridLineStyle = ':';
+    ax.GridAlpha = 0.2;
+    ax.Layer = 'top';
+    ax.XAxis.FontSize = fontxt2;
+    ax.YAxis.FontSize = fontxt2;
+    
+    figure
+    plot(t,q11*10^6,colour1,'LineWidth',ld)
+    hold on
+    plot(bc_outlet_11_flow(1:end,1),bc_outlet_11_flow(1:end,2),colour2,'LineWidth',ld);
+    grid on
+    box on
+    ax = gca;
+    ax.LineWidth = 2.5;
+    t2 = legend('1-D (Present)','3-D');
+    t2.FontSize = fontxt2;
+    t2 = title('Volume flow rate - bc outlet (11)');
+    t2.FontSize = fontxt2;
+    t2 = xlabel('time (s)');
+    t2.FontSize = fontxt2;
+    t2 = ylabel('Q (ml/s)');
+    t2.FontSize = 13;
+    txt = ['avg%: ',num2str(round(error11flow*100,2))];
+    t1 = text(0.7,35,txt);
+    t1.FontSize = fontxt;
+    txt = ['max%: ',num2str(round(emax11flow*100,2))];
+    t1 = text(0.7,30,txt);
+    t1.FontSize = fontxt;
+    txt = ['sys%: ',num2str(round(esys11flow*100,2))];
+    t1 = text(0.7,25,txt);
+    t1.FontSize = fontxt;
+    txt = ['dias%: ',num2str(round(edias11flow*100,2))];
+    t1 = text(0.7,20,txt);
+    t1.FontSize = fontxt;
+    axis([0 1.1,-5 50])
+    ax = gca;
+    ax.GridLineStyle = ':';
+    ax.GridAlpha = 0.2;
+    ax.Layer = 'top';
+    ax.XAxis.FontSize = fontxt2;
+    ax.YAxis.FontSize = fontxt2;
+    
+    figure
+    plot(t,p11*10^-3,colour1,'LineWidth',ld)
+    hold on
+    plot(bc_outlet_11_Pressure(1:end,1),bc_outlet_11_Pressure(1:end,2)*10^-3,colour2,'LineWidth',ld);
+    grid on
+    box on
+    ax = gca;
+    ax.LineWidth = 2.5;
+    t2 = legend('1-D (Present)','3-D');
+    t2.FontSize = fontxt2;
+    t2 = title('Pressure -  bc outlet (11)');
+    t2.FontSize = fontxt2;
+    t2 = xlabel('time (s)');
+    t2.FontSize = fontxt2;
+    t2 = ylabel('P (kPa)');
+    t2.FontSize = fontxt2;
+    txt = ['avg%: ',num2str(round(error11pressure*100,2))];
+    t1 = text(0.7,14.5,txt);
+    t1.FontSize = fontxt;
+    txt = ['max%: ',num2str(round(emax11pressure*100,2))];
+    t1 = text(0.7,13.7,txt);
+    t1.FontSize = fontxt;
+    txt = ['sys%: ',num2str(round(esys11pressure*100,2))];
+    t1 = text(0.7,12.9,txt);
+    t1.FontSize = fontxt;
+    txt = ['dias%: ',num2str(round(edias11pressure*100,2))];
+    t1 = text(0.7,12.1,txt);
+    t1.FontSize = fontxt;
+    axis([0 1.1,8 17])
+    ax = gca;
+    ax.GridLineStyle = ':';
+    ax.GridAlpha = 0.2;
+    ax.Layer = 'top';
+    ax.XAxis.FontSize = fontxt2;
+    ax.YAxis.FontSize = fontxt2;
+    
+    figure
+    plot(t,q12*10^6,colour1,'LineWidth',ld)
+    hold on
+    plot(lcca_outlet_12_flow(1:end,1),lcca_outlet_12_flow(1:end,2),colour2,'LineWidth',ld)
+    grid on
+    box on
+    ax = gca;
+    ax.LineWidth = 2.5;
+    t2 = legend('1-D (Present)','3-D');
+    t2.FontSize = fontxt2;
+    t2 = title('Volume flow rate - lcca outlet (12)');
+    t2.FontSize = fontxt2;
+    t2 = xlabel('time (s)');
+    t2.FontSize = fontxt2;
+    t2 = ylabel('Q (ml/s)');
+    t2.FontSize = fontxt2;
+    txt = ['avg%: ',num2str(round(error12flow*100,2))];
+    t1 = text(0.7,9.5,txt);
+    t1.FontSize = fontxt;
+    txt = ['max%: ',num2str(round(emax12flow*100,2))];
+    t1 = text(0.7,7.7,txt);
+    t1.FontSize = fontxt;
+    txt = ['sys%: ',num2str(round(esys12flow*100,2))];
+    t1 = text(0.7,5.9,txt);
+    t1.FontSize = fontxt;
+    txt = ['dias%: ',num2str(round(edias12flow*100,2))];
+    t1 = text(0.7,4.1,txt);
+    t1.FontSize = fontxt;
+    axis([0 1.1,-5 15])
+    ax = gca;
+    ax.GridLineStyle = ':';
+    ax.GridAlpha = 0.2;
+    ax.Layer = 'top';
+    ax.XAxis.FontSize = fontxt2;
+    ax.YAxis.FontSize = fontxt2;
+    
+    figure
+    plot(t,p12*10^-3,colour1,'LineWidth',ld)
+    hold on
+    plot(lcca_outlet_12_Pressure(1:end,1),lcca_outlet_12_Pressure(1:end,2)*10^-3,colour2,'LineWidth',ld)
+    grid on
+    box on
+    ax = gca;
+    ax.LineWidth = 2.5;
+    t2 = legend('1-D (Present)','3-D');
+    t2.FontSize = fontxt2;
+    t2 = title('Pressure - lcca outlet (12)');
+    t2.FontSize = fontxt2;
+    t2 = xlabel('time (s)');
+    t2.FontSize = fontxt2;
+    t2 = ylabel('P (kPa)');
+    t2.FontSize = fontxt2;
+    txt = ['avg%: ',num2str(round(error12pressure*100,2))];
+    t1 = text(0.7,14.5,txt);
+    t1.FontSize = fontxt;
+    txt = ['max%: ',num2str(round(emax12pressure*100,2))];
+    t1 = text(0.7,13.7,txt);
+    t1.FontSize = fontxt;
+    txt = ['sys%: ',num2str(round(esys12pressure*100,2))];
+    t1 = text(0.7,12.9,txt);
+    t1.FontSize = fontxt;
+    txt = ['dias%: ',num2str(round(edias12pressure*100,2))];
+    t1 = text(0.7,12.1,txt);
+    t1.FontSize = fontxt;
+    axis([0 1.1,8 17])
+    ax = gca;
+    ax.GridLineStyle = ':';
+    ax.GridAlpha = 0.2;
+    ax.Layer = 'top';
+    ax.XAxis.FontSize = fontxt2;
+    ax.YAxis.FontSize = fontxt2;
+    
+    figure
+    plot(t,q13*10^6,colour1,'LineWidth',ld)
+    hold on
+    plot(lsub_outlet_13_flow(1:end,1),lsub_outlet_13_flow(1:end,2),colour2,'LineWidth',ld)
+    grid on
+    box on
+    ax = gca;
+    ax.LineWidth = 2.5;
+    t2 = legend('1-D (Present)','3-D');
+    t2.FontSize = fontxt2;
+    t2 = title('Volume flow rate - lsub outlet (13)');
+    t2.FontSize = fontxt2;
+    t2 = xlabel('time (s)');
+    t2.FontSize = fontxt2;
+    t2 = ylabel('Q (ml/s)');
+    t2.FontSize = fontxt2;
+    txt = ['avg%: ',num2str(round(error13flow*100,2))];
+    t1 = text(0.7,35,txt);
+    t1.FontSize = fontxt;
+    txt = ['max%: ',num2str(round(emax13flow*100,2))];
+    t1 = text(0.7,30,txt);
+    t1.FontSize = fontxt;
+    txt = ['sys%: ',num2str(round(esys13flow*100,2))];
+    t1 = text(0.7,25,txt);
+    t1.FontSize = fontxt;
+    txt = ['dias%: ',num2str(round(edias13flow*100,2))];
+    t1 = text(0.7,20,txt);
+    t1.FontSize = fontxt;
+    axis([0 1.1,-3 50])
+    ax = gca;
+    ax.GridLineStyle = ':';
+    ax.GridAlpha = 0.2;
+    ax.Layer = 'top';
+    ax.XAxis.FontSize = fontxt2;
+    ax.YAxis.FontSize = fontxt2;
+    
+    figure
+    plot(t,p13*10^-3,colour1,'LineWidth',ld)
+    hold on
+    plot(lsub_outlet_13_Pressure(1:end,1),lsub_outlet_13_Pressure(1:end,2)*10^-3,colour2,'LineWidth',ld)
+    grid on
+    box on
+    ax = gca;
+    ax.LineWidth = 2.5;
+    t2 = legend('1-D (Present)','3-D');
+    t2.FontSize = fontxt2;
+    t2 = title('Pressure - lsub outlet (13)');
+    t2.FontSize = fontxt2;
+    t2 = xlabel('time (s)');
+    t2.FontSize = fontxt2;
+    t2 = ylabel('P (kPa)');
+    t2.FontSize = fontxt2;
+    txt = ['avg%: ',num2str(round(error13pressure*100,2))];
+    t1 = text(0.7,14.5,txt);
+    t1.FontSize = fontxt;
+    txt = ['max%: ',num2str(round(emax13pressure*100,2))];
+    t1 = text(0.7,13.7,txt);
+    t1.FontSize = fontxt;
+    txt = ['sys%: ',num2str(round(esys13pressure*100,2))];
+    t1 = text(0.7,12.9,txt);
+    t1.FontSize = fontxt;
+    txt = ['dias%: ',num2str(round(edias13pressure*100,2))];
+    t1 = text(0.7,12.1,txt);
+    t1.FontSize = fontxt;
+    axis([0 1.1,8 17])
+    ax = gca;
+    ax.GridLineStyle = ':';
+    ax.GridAlpha = 0.2;
+    ax.Layer = 'top';
+    ax.XAxis.FontSize = fontxt2;
+    ax.YAxis.FontSize = fontxt2;
+    
+    figure
+    plot(t,q15*10^6,colour1,'LineWidth',ld)
+    hold on
+    plot(sma_outlet_15_flow(1:end,1),sma_outlet_15_flow(1:end,2),colour2,'LineWidth',ld)
+    grid on
+    box on
+    ax = gca;
+    ax.LineWidth = 2.5;
+    t2 = legend('1-D (Present)','3-D');
+    t2.FontSize = fontxt2;
+    t2 = title('Volume flow rate - sma outlet (15)');t2.FontSize = 13;
+    t2.FontSize = fontxt2;
+    t2 = xlabel('time (s)');
+    t2.FontSize = fontxt2;
+    t2 = ylabel('Q (ml/s)');
+    t2.FontSize = fontxt2;
+    txt = ['avg%: ',num2str(round(error15flow*100,2))];
+    t1 = text(0.7,35,txt);
+    t1.FontSize = fontxt;
+    txt = ['max%: ',num2str(round(emax15flow*100,2))];
+    t1 = text(0.7,30,txt);
+    t1.FontSize = fontxt;
+    txt = ['sys%: ',num2str(round(esys15flow*100,2))];
+    t1 = text(0.7,25,txt);
+    t1.FontSize = fontxt;
+    txt = ['dias%: ',num2str(round(edias15flow*100,2))];
+    t1 = text(0.7,20,txt);
+    t1.FontSize = fontxt;
+    axis([0 1.1,-3 50])
+    ax = gca;
+    ax.GridLineStyle = ':';
+    ax.GridAlpha = 0.2;
+    ax.Layer = 'top';
+    ax.XAxis.FontSize = fontxt2;
+    ax.YAxis.FontSize = fontxt2;
+    
+    figure
+    plot(t,p15*10^-3,colour1,'LineWidth',ld)
+    hold on
+    plot(sma_outlet_15_Pressure(1:end,1),sma_outlet_15_Pressure(1:end,2)*10^-3,colour2,'LineWidth',ld)
+    grid on
+    box on
+    ax = gca;
+    ax.LineWidth = 2.5;
+    t2 = legend('1-D (Present)','3-D');
+    t2.FontSize = fontxt2;
+    t2 = title('Pressure - sma outlet (15)');
+    t2.FontSize = fontxt2;
+    t2 = xlabel('time (s)');
+    t2.FontSize = fontxt2;
+    t2 = ylabel('P (kPa)');
+    t2.FontSize = fontxt2;
+    txt = ['avg%: ',num2str(round(error15pressure*100,2))];
+    t1 = text(0.7,14.5,txt);
+    t1.FontSize = fontxt;
+    txt = ['max%: ',num2str(round(emax15pressure*100,2))];
+    t1 = text(0.7,13.7,txt);
+    t1.FontSize = fontxt;
+    txt = ['sys%: ',num2str(round(esys15pressure*100,2))];
+    t1 = text(0.7,12.9,txt);
+    t1.FontSize = fontxt;
+    txt = ['dias%: ',num2str(round(edias15pressure*100,2))];
+    t1 = text(0.7,12.1,txt);
+    t1.FontSize = fontxt;
+    axis([0 1.1,8 17])
+    ax = gca;
+    ax.GridLineStyle = ':';
+    ax.GridAlpha = 0.2;
+    ax.Layer = 'top';
+    ax.XAxis.FontSize = fontxt2;
+    ax.YAxis.FontSize = fontxt2;
+    
+    figure
+    plot(t,q16*10^6,colour1,'LineWidth',ld)
+    hold on
+    plot(rena_outlet_16_flow(1:end,1),rena_outlet_16_flow(1:end,2),colour2,'LineWidth',ld)
+    grid on
+    box on
+    ax = gca;
+    ax.LineWidth = 2.5;
+    t2 = legend('1-D (Present)','3-D');
+    t2.FontSize = fontxt2;
+    t2 = title('Volume flow rate - r ren (16)');
+    t2.FontSize = fontxt2;
+    t2 = xlabel('time (s)');
+    t2.FontSize = fontxt2;
+    t2 = ylabel('Q (ml/s)');
+    t2.FontSize = fontxt2;
+    txt = ['avg%: ',num2str(round(error16flow*100,2))];
+    t1 = text(0.7,35,txt);
+    t1.FontSize = fontxt;
+    txt = ['max%: ',num2str(round(emax16flow*100,2))];
+    t1 = text(0.7,30,txt);
+    t1.FontSize = fontxt;
+    txt = ['sys%: ',num2str(round(esys16flow*100,2))];
+    t1 = text(0.7,25,txt);
+    t1.FontSize = fontxt;
+    txt = ['dias%: ',num2str(round(edias16flow*100,2))];
+    t1 = text(0.7,20,txt);
+    t1.FontSize = fontxt;
+    axis([0 1.1,-3 50])
+    ax = gca;
+    ax.GridLineStyle = ':';
+    ax.GridAlpha = 0.2;
+    ax.Layer = 'top';
+    ax.XAxis.FontSize = fontxt2;
+    ax.YAxis.FontSize = fontxt2;
+    
+    figure
+    plot(t,p16*10^-3,colour1,'LineWidth',ld)
+    hold on
+    plot(rena_outlet_16_Pressure(1:end,1),rena_outlet_16_Pressure(1:end,2)*10^-3,colour2,'LineWidth',ld)
+    grid on
+    box on
+    ax = gca;
+    ax.LineWidth = 2.5;
+    t2 = legend('1-D (Present)','3-D');
+    t2.FontSize = fontxt2;
+    t2 = title('Pressure - r ren (16)');
+    t2.FontSize = fontxt2;
+    t2 = xlabel('time (s)');
+    t2.FontSize = fontxt2;
+    t2 = ylabel('P (kPa)');
+    t2.FontSize = fontxt2;
+    txt = ['avg%: ',num2str(round(error16pressure*100,2))];
+    t1 = text(0.7,14.5,txt);
+    t1.FontSize = fontxt;
+    txt = ['max%: ',num2str(round(emax16pressure*100,2))];
+    t1 = text(0.7,13.7,txt);
+    t1.FontSize = fontxt;
+    txt = ['sys%: ',num2str(round(esys16pressure*100,2))];
+    t1 = text(0.7,12.9,txt);
+    t1.FontSize = fontxt;
+    txt = ['dias%: ',num2str(round(edias16pressure*100,2))];
+    t1 = text(0.7,12.1,txt);
+    t1.FontSize = fontxt;
+    axis([0 1.1,8 17])
+    ax = gca;
+    ax.GridLineStyle = ':';
+    ax.GridAlpha = 0.2;
+    ax.Layer = 'top';
+    ax.XAxis.FontSize = fontxt2;
+    ax.YAxis.FontSize = fontxt2;
+    
+    figure
+    plot(t,q18*10^6,colour1,'LineWidth',ld)
+    hold on
+    plot(imma_outlet_18_flow(1:end,1),imma_outlet_18_flow(1:end,2),colour2,'LineWidth',ld)
+    grid on
+    box on
+    ax = gca;
+    ax.LineWidth = 2.5;
+    t2 = legend('1-D (Present)','3-D');
+    t2.FontSize = fontxt2;
+    t2 = title('Volume flow rate - imma outlet (18)');
+    t2.FontSize = fontxt2;
+    t2 = xlabel('time (s)');
+    t2.FontSize = fontxt2;
+    t2 = ylabel('Q (ml/s)');
+    t2.FontSize = fontxt2;
+    txt = ['avg%: ',num2str(round(error18flow*100,2))];
+    t1 = text(0.7,9.2,txt);
+    t1.FontSize = fontxt;
+    txt = ['max%: ',num2str(round(emax18flow*100,2))];
+    t1 = text(0.7,7.5,txt);
+    t1.FontSize = fontxt;
+    txt = ['sys%: ',num2str(round(esys18flow*100,2))];
+    t1 = text(0.7,5.8,txt);
+    t1.FontSize = fontxt;
+    txt = ['dias%: ',num2str(round(edias18flow*100,2))];
+    t1 = text(0.7,4.1,txt);
+    t1.FontSize = fontxt;
+    axis([0 1.1,-5 15])
+    ax = gca;
+    ax.GridLineStyle = ':';
+    ax.GridAlpha = 0.2;
+    ax.Layer = 'top';
+    ax.XAxis.FontSize = fontxt2;
+    ax.YAxis.FontSize = fontxt2;
+    
+    figure
+    plot(t,p18*10^-3,colour1,'LineWidth',ld)
+    hold on
+    plot(imma_outlet_18_Pressure(1:end,1),imma_outlet_18_Pressure(1:end,2)*10^-3,colour2,'LineWidth',ld)
+    grid on
+    box on
+    ax = gca;
+    ax.LineWidth = 2.5;
+    t2 = legend('1-D (Present)','3-D');
+    t2.FontSize = fontxt2;
+    t2 = title('Pressure - imma outlet (18)');
+    t2.FontSize = fontxt2;
+    t2 = xlabel('time (s)');
+    t2.FontSize = fontxt2;
+    t2 = ylabel('P (kPa)');
+    t2.FontSize = fontxt2;
+    txt = ['avg%: ',num2str(round(error18pressure*100,2))];
+    t1 = text(0.7,14.5,txt);
+    t1.FontSize = fontxt;
+    txt = ['max%: ',num2str(round(emax18pressure*100,2))];
+    t1 = text(0.7,13.7,txt);
+    t1.FontSize = fontxt;
+    txt = ['sys%: ',num2str(round(esys18pressure*100,2))];
+    t1 = text(0.7,12.9,txt);
+    t1.FontSize = fontxt;
+    txt = ['dias%: ',num2str(round(edias18pressure*100,2))];
+    t1 = text(0.7,12.1,txt);
+    t1.FontSize = fontxt;
+    axis([0 1.1,8 17])
+    ax = gca;
+    ax.GridLineStyle = ':';
+    ax.GridAlpha = 0.2;
+    ax.Layer = 'top';
+    ax.XAxis.FontSize = fontxt2;
+    ax.YAxis.FontSize = fontxt2;
+    
+    figure
+    plot(t,q19*10^6,colour1,'LineWidth',ld)
+    hold on
+    plot(riliac_outlet_19_flow(1:end,1),riliac_outlet_19_flow(1:end,2),colour2,'LineWidth',ld)
+    grid on
+    box on
+    ax = gca;
+    ax.LineWidth = 2.5;
+    t2 = legend('1-D (Present)','3-D');
+    t2.FontSize = fontxt2;
+    t2 = title('Volume flow rate - r iliac outlet (19)');
+    t2.FontSize = fontxt2;
+    t2 = xlabel('time (s)');
+    t2.FontSize = fontxt2;
+    t2 = ylabel('Q (ml/s)');
+    t2.FontSize = fontxt2;
+    txt = ['avg%: ',num2str(round(error19flow*100,2))];
+    t1 = text(0.7,45,txt);
+    t1.FontSize = fontxt;
+    txt = ['max%: ',num2str(round(emax19flow*100,2))];
+    t1 = text(0.7,37,txt);
+    t1.FontSize = fontxt;
+    txt = ['sys%: ',num2str(round(esys19flow*100,2))];
+    t1 = text(0.7,29,txt);
+    t1.FontSize = fontxt;
+    txt = ['dias%: ',num2str(round(edias19flow*100,2))];
+    t1 = text(0.7,21,txt);
+    t1.FontSize = fontxt;
+    axis([0 1.1,-25 70])
+    ax = gca;
+    ax.GridLineStyle = ':';
+    ax.GridAlpha = 0.2;
+    ax.Layer = 'top';
+    ax.XAxis.FontSize = fontxt2;
+    ax.YAxis.FontSize = fontxt2;
+    
+    figure
+    plot(t,p19*10^-3,colour1,'LineWidth',ld)
+    hold on
+    plot(riliac_outlet_19_Pressure(1:end,1),riliac_outlet_19_Pressure(1:end,2)*10^-3,colour2,'LineWidth',ld)
+    grid on
+    box on
+    ax = gca;
+    ax.LineWidth = 2.5;
+    t2 = legend('1-D (Present)','3-D');
+    t2.FontSize = fontxt2;
+    t2 = title('Pressure - r iliac outlet (19)');
+    t2.FontSize = fontxt2;
+    t2 = xlabel('time (s)');
+    t2.FontSize = fontxt2;
+    t2 = ylabel('P (kPa)');
+    t2.FontSize = fontxt2;
+    txt = ['avg%: ',num2str(round(error19pressure*100,2))];
+    t1 = text(0.7,16,txt);
+    t1.FontSize = fontxt;
+    txt = ['max%: ',num2str(round(emax19pressure*100,2))];
+    t1 = text(0.7,15,txt);
+    t1.FontSize = fontxt;
+    txt = ['sys%: ',num2str(round(esys19pressure*100,2))];
+    t1 = text(0.7,14,txt);
+    t1.FontSize = fontxt;
+    txt = ['dias%: ',num2str(round(edias19pressure*100,2))];
+    t1 = text(0.7,13,txt);
+    t1.FontSize = fontxt;
+    axis([0 1.1,8 19]);
+    ax = gca;
+    ax.GridLineStyle = ':';
+    ax.GridAlpha = 0.2;
+    ax.Layer = 'top';
+    ax.XAxis.FontSize = fontxt2;
+    ax.YAxis.FontSize = fontxt2;
+end
