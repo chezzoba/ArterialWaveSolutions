@@ -8,7 +8,7 @@ scaler = MinMaxScaler(xmin, xmax);
 problem = OptimisationProblem(AorticArchModel, params, scaler);
 
 
-measurements = 1;
+measurements = 0;
 
 switch (measurements)
     case (0)

@@ -3,7 +3,25 @@ clc;
 clear;
 addpath('../VesselModels/');
 
-plotting = true;
+%% Determining Parameters
+
+dt = 2.5e-5;
+ds = 5e-4;
+PD = 1;
+
+As = table2array(readtable('../Data/rsfs20170006supp2.xls', 'Sheet', sprintf('PD%d', PD)));
+Qs = table2array(readtable('../Data/rsfs20170006supp3.xls', 'Sheet', sprintf('PD%d', PD)));
+[As, Qs] = deal(As(:, 2:end), Qs(:, 2:end));
+
+avQ = mean(Qs, 2);
+Qdrops = find(abs((avQ(1:height(Qs)-1) - avQ(2:height(Qs))) ./ avQ(1:height(Qs)-1)) > 0.1);
+pos1 = Qdrops(1);
+pos3 = Qdrops(end);
+
+poses = round([pos1/2, pos1, (pos1 + pos3) / 2,...
+    pos3, (height(Qs) + 2*pos3)/3, (2*height(Qs) + pos3)/3]);
+
+plotting = false;
 
 %% Importing the data from the Flores plots
 load('../PreviousCode/automeris/aorta/BC.csv')
@@ -15,12 +33,12 @@ load('../PreviousCode/automeris/aorta/lcca_outlet_12_Pressure.csv')
 load('../PreviousCode/automeris/aorta/lsub_outlet_13_flow.csv')
 load('../PreviousCode/automeris/aorta/lsub_outlet_13_Pressure.csv')
 
-rho = 1060; % kg/m^3
+rho = 1050; % kg/m^3
 seg1 = 0.5; % L1
-WKP7 = [59149000, 1.0174e+09, 9.0686e-10];
+WKP7 = [17513091.0464560, 214342021.080118, 4.67859041979278e-09];
 
 ves1 = Vessel(0.0152, 0.0704*seg1, 0.0184750925619521, 0.001325687943664,...
-    1060, [0, 0, 0]);
+    rho, [0, 0, 0]);
 ves1.type = 5;
 
 R2 = ves1.R - tan(ves1.a)*seg1*ves1.L;

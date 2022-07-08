@@ -34,6 +34,7 @@ classdef AorticArchModel
             seg1 = 0.5; % L1
             WKP7 = [obj.RW17, obj.RW27, obj.Cwk7];
             
+            
             ves1 = Vessel(0.0152, 0.0704*seg1, 0.0184750925619521, 0.001325687943664,...
                 rho, [0, 0, 0]);
             ves1.type = 5;
