@@ -9,29 +9,36 @@ dt = 2.5e-5;
 ds = 5e-4;
 PD = 1;
 
+data = readtable('../Data/rsfs20170006supp1.xls', 'Sheet', sprintf('PD%d', PD));
 As = table2array(readtable('../Data/rsfs20170006supp2.xls', 'Sheet', sprintf('PD%d', PD)));
 Qs = table2array(readtable('../Data/rsfs20170006supp3.xls', 'Sheet', sprintf('PD%d', PD)));
 [As, Qs] = deal(As(:, 2:end), Qs(:, 2:end));
 
+Nx = height(Qs);
+
 avQ = mean(Qs, 2);
-Qdrops = find(abs((avQ(1:height(Qs)-1) - avQ(2:height(Qs))) ./ avQ(1:height(Qs)-1)) > 0.1);
+Qdrops = find(abs((avQ(1:Nx-1) - avQ(2:Nx)) ./ avQ(1:Nx-1)) > 0.1);
 pos1 = Qdrops(1);
 pos3 = Qdrops(end);
 
-poses = round([pos1/2, pos1, (pos1 + pos3) / 2,...
-    pos3, (height(Qs) + 2*pos3)/3, (2*height(Qs) + pos3)/3]);
+poses = round([1, pos1/2, pos1, (pos1 + pos3) / 2,...
+    pos3, (Nx + 2*pos3)/3, (2*Nx + pos3)/3, Nx]);
+
+xs = data.AnalysisPlane(poses) * 1e-3;
+Asysp = data.MaximumAreaMeasured(poses) * 1e-6;
+Adiasp = data.MinimumAreaMeasured(poses) * 1e-6;
+Psysp = data.MaximumPressure(poses) * 133.32237;
+Pdiasp = data.MinimumPressure(poses) * 133.32237;
+
+Ls = (xs(2:end) - xs(1:length(xs)-1));
+Rs = sqrt(Adiasp/pi);
+betas = (1 - sqrt(Adiasp ./ Asysp)) ./ (Rs .* (Psysp - Pdiasp));
+
 
 plotting = false;
 
 %% Importing the data from the Flores plots
-load('../PreviousCode/automeris/aorta/BC.csv')
-load('../PreviousCode/automeris/aorta/Inlet_Pressure.csv')
-load('../PreviousCode/automeris/aorta/bc_outlet_11_flow.csv')
-load('../PreviousCode/automeris/aorta/bc_outlet_11_Pressure.csv')
-load('../PreviousCode/automeris/aorta/lcca_outlet_12_flow.csv')
-load('../PreviousCode/automeris/aorta/lcca_outlet_12_Pressure.csv')
-load('../PreviousCode/automeris/aorta/lsub_outlet_13_flow.csv')
-load('../PreviousCode/automeris/aorta/lsub_outlet_13_Pressure.csv')
+
 
 rho = 1050; % kg/m^3
 seg1 = 0.5; % L1
