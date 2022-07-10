@@ -5,8 +5,7 @@ addpath('../VesselModels/');
 
 %% Determining Parameters
 
-dt = 2.5e-5;
-ds = 5e-4;
+rho = 1050; % kg/m^3
 PD = 1;
 
 data = readtable('../Data/rsfs20170006supp1.xls', 'Sheet', sprintf('PD%d', PD));
@@ -31,16 +30,21 @@ Psysp = data.MaximumPressure(poses) * 133.32237;
 Pdiasp = data.MinimumPressure(poses) * 133.32237;
 
 Ls = (xs(2:end) - xs(1:length(xs)-1));
-Rs = sqrt(Adiasp/pi);
+Rs = data.EndDiastolicRadius(poses) * 1e-3;
 betas = (1 - sqrt(Adiasp ./ Asysp)) ./ (Rs .* (Psysp - Pdiasp));
+as = atan((Rs(1:length(Rs)-1) - Rs(2:end)) ./ Ls);
 
+parents = [2, 3, 4];
+chila = [3, 4, 5];
+Rpparents = sqrt(2 .* rho ./ betas(parents)) ./ (pi .* Rs(parents) .^ 2.5);
+Rpchila = sqrt(2 .* rho ./ betas(chila)) ./ (pi .* Rs(chila) .^ 2.5);
+Rpsa = (Rpparents .* Rpchila) ./ abs(Rpparents - Rpchila);
+betasa = 2 * rho ./ (Rpsa .* pi .* Rs(chila) .^ 2.5) .^ 2;
 
 plotting = false;
 
 %% Importing the data from the Flores plots
 
-
-rho = 1050; % kg/m^3
 seg1 = 0.5; % L1
 WKP7 = [17513091.0464560, 214342021.080118, 4.67859041979278e-09];
 

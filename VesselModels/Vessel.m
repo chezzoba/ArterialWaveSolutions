@@ -144,7 +144,7 @@ classdef Vessel
             F = fft(Qin(1:N))/N;
             % Define the fundamental harmonic omega and the number of harmonics
             om = 2*pi/T;
-            omegas = -om * (0:N/2);
+            omegas = om * (0:N/2);
             omegas(1) = 1e-10;
         end
     end
