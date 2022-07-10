@@ -72,8 +72,6 @@ bi3_13_4 = Bifurcation([R(3), R(13), R(4)], [L(3), L(13), L(4)],...
     [be(3), be(13), be(4)], rho, [a(3), a(13), a(4)],...
     RW1(13), RW2(13), CWK(13));
 
-ves4 = bi3_13_4.vessel(3);
-
 bi2_12_3 = Bifurcation([R(2), R(12), R(3)], [L(2), L(12), L(3)],...
     [be(2), be(12), be(3)], rho, [a(2), a(12), a(3)],...
     RW1(12), RW2(12), CWK(12));
@@ -81,6 +79,7 @@ bi2_12_3 = Bifurcation([R(2), R(12), R(3)], [L(2), L(12), L(3)],...
 bi1_11_2 = Bifurcation([R(1), R(11), R(2)], [L(1), L(11), L(2)],...
     [be(1), be(11), be(2)], rho, [a(1), a(11), a(2)],...
     RW1(11), RW2(11), CWK(11));
+
 bi1_11_2.type = 5;
 
 [omegas, F, t] = Vessel.ProcessBC(BC);
@@ -106,7 +105,7 @@ bi6_15_7 = bi6_15_7.backpropagate(omegas, bi7_16_8);
 bi5_14_6 = bi5_14_6.backpropagate(omegas, bi6_15_7);
 
 %4-5 --> Two connected vessels
-ves4 = ves4.backpropagate(omegas, bi5_14_6);
+ves4 = bi3_13_4.vessel(3).backpropagate(omegas, bi5_14_6);
 
 %3-13-4 --> Type III Bifurcation  
 bi3_13_4 = bi3_13_4.backpropagate(omegas, ves4);

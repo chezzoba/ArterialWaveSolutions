@@ -120,9 +120,9 @@ sols = [Q1; P1; Q8out; P8out; Q9out; P9out; Q10out; P10out; Q7out; P7out];
 solt = InverseFourierTransform(t, omegas, sols, F);
 
 
-[q1, p1, q11, p11, q12, p12] = deal(solt(1, :), solt(2, :), solt(3, :), solt(4, :), solt(5, :), solt(6, :));
+[q1, p1, q8, p8, q9, p9] = deal(solt(1, :), solt(2, :), solt(3, :), solt(4, :), solt(5, :), solt(6, :));
 
-[q13, p13, q7, p7] = deal(solt(7, :), solt(8, :), solt(9, :), solt(10, :));
+[q10, p10, q7, p7] = deal(solt(7, :), solt(8, :), solt(9, :), solt(10, :));
 
 
 
@@ -173,7 +173,7 @@ if (plotting)
     ax.YAxis.FontSize = fontxt2;
     
     figure
-    plot(t,q11*10^6,colour1,'LineWidth',ld)
+    plot(t,q8*10^6,colour1,'LineWidth',ld)
     hold on
     grid on
     box on
@@ -193,7 +193,7 @@ if (plotting)
     ax.YAxis.FontSize = fontxt2;
     
     figure
-    plot(t,p11*10^-3,colour1,'LineWidth',ld)
+    plot(t,p8*10^-3,colour1,'LineWidth',ld)
     hold on
     grid on
     box on
@@ -214,7 +214,7 @@ if (plotting)
     ax.YAxis.FontSize = fontxt2;
     
     figure
-    plot(t,q12*10^6,colour1,'LineWidth',ld)
+    plot(t,q9*10^6,colour1,'LineWidth',ld)
     hold on
     grid on
     box on
@@ -235,7 +235,7 @@ if (plotting)
     ax.YAxis.FontSize = fontxt2;
     
     figure
-    plot(t,p12*10^-3,colour1,'LineWidth',ld)
+    plot(t,p9*10^-3,colour1,'LineWidth',ld)
     hold on
     grid on
     box on
@@ -256,7 +256,7 @@ if (plotting)
     ax.YAxis.FontSize = fontxt2;
     
     figure
-    plot(t,q13*10^6,colour1,'LineWidth',ld)
+    plot(t,q10*10^6,colour1,'LineWidth',ld)
     hold on
     grid on
     box on
@@ -268,6 +268,27 @@ if (plotting)
     t2 = xlabel('time (s)');
     t2.FontSize = fontxt2;
     t2 = ylabel('Q (ml/s)');
+    t2.FontSize = fontxt2;
+    ax = gca;
+    ax.GridLineStyle = ':';
+    ax.GridAlpha = 0.2;
+    ax.Layer = 'top';
+    ax.XAxis.FontSize = fontxt2;
+    ax.YAxis.FontSize = fontxt2;
+
+    figure
+    plot(t,p10*10^-3,colour1,'LineWidth',ld)
+    hold on
+    grid on
+    box on
+    ax = gca;
+    ax.LineWidth = 2.5;
+    t2.FontSize = fontxt2;
+    t2 = title('Pressure - lcca outlet (10)');
+    t2.FontSize = fontxt2;
+    t2 = xlabel('time (s)');
+    t2.FontSize = fontxt2;
+    t2 = ylabel('P (kPa)');
     t2.FontSize = fontxt2;
     ax = gca;
     ax.GridLineStyle = ':';
