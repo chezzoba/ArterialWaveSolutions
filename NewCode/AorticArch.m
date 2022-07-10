@@ -38,7 +38,7 @@ parents = [2, 3, 4];
 chila = [3, 4, 5];
 Rpparents = sqrt(2 .* rho ./ betas(parents)) ./ (pi .* Rs(parents) .^ 2.5);
 Rpchila = sqrt(2 .* rho ./ betas(chila)) ./ (pi .* Rs(chila) .^ 2.5);
-Rpsa = (Rpparents .* Rpchila) ./ abs(Rpparents - Rpchila);
+Rpsa = (Rpparents .* Rpchila) ./ (Rpparents - Rpchila);
 betasa = 2 * rho ./ (Rpsa .* pi .* Rs(chila) .^ 2.5) .^ 2;
 Lsa = 2e-2;
 
@@ -72,8 +72,7 @@ ves6 = Vessel(Rs(6), Ls(6), as(6), betas(6), rho, [0, 0, 0]);
 ves7 = Vessel(Rs(7), Ls(7), as(7), betas(7), rho, WKP7);
 ves7.type = 2;
 
-t = (0:24) / 25;
-BC = [t; Qs(1, :)].';
+BC = [(0:24) / 25; Qs(1, :)].';
 [omegas, F, t] = Vessel.ProcessBC(BC);
 
 %% Backward Propagation
@@ -116,14 +115,14 @@ ves2 = bi2_8_3.vessel(1);
 
 
 %% Inverse Fourier Transform
-sols = [Q1; P1; Q8out; P8out; Q9out; P9out; Q10out; P10out];
+sols = [Q1; P1; Q8out; P8out; Q9out; P9out; Q10out; P10out; Q7out; P7out];
 
 solt = InverseFourierTransform(t, omegas, sols, F);
 
 
 [q1, p1, q11, p11, q12, p12] = deal(solt(1, :), solt(2, :), solt(3, :), solt(4, :), solt(5, :), solt(6, :));
 
-[q13, p13] = deal(solt(7, :), solt(8, :));
+[q13, p13, q7, p7] = deal(solt(7, :), solt(8, :), solt(9, :), solt(10, :));
 
 
 
@@ -278,18 +277,20 @@ if (plotting)
     ax.YAxis.FontSize = fontxt2;
     
     figure
-    plot(t,p13*10^-3,colour1,'LineWidth',ld)
+    plot(t,q7*10^6,colour1,'LineWidth',ld)
     hold on
+    plot((0:24) / 25, Qs(end, :),colour2,'LineWidth',ld)
     grid on
     box on
     ax = gca;
     ax.LineWidth = 2.5;
+    t2 = legend('1-D (Present)','4-D');
     t2.FontSize = fontxt2;
-    t2 = title('Pressure - lsub outlet (13)');
+    t2 = title('Volume flow rate - outlet (7)');
     t2.FontSize = fontxt2;
     t2 = xlabel('time (s)');
     t2.FontSize = fontxt2;
-    t2 = ylabel('P (kPa)');
+    t2 = ylabel('Q (ml/s)');
     t2.FontSize = fontxt2;
     ax = gca;
     ax.GridLineStyle = ':';

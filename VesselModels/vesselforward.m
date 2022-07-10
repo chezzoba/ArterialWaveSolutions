@@ -1,4 +1,4 @@
-function [Q,P,A,B] = vesselforward(Pout,L,R,a,omega,rho,beta,B_A)
+function [Q,P,A,B] = vesselforward(Pout,sout,R,a,omega,rho,beta,B_A)
 
     xin = 0;
     s1in = (R-tan(a)*xin)/sin(a);
@@ -6,8 +6,8 @@ function [Q,P,A,B] = vesselforward(Pout,L,R,a,omega,rho,beta,B_A)
     A = Pout./((s1in^-0.5).*(J_13sin+B_A.*Y_13sin));
     B = B_A.*A;
     
-    xout = L;
-    sout = (R-tan(a)*xout)/sin(a);
+    %xout = L;
+    %sout = (R-tan(a)*xout)/sin(a);
     [J_13sout,Y_13out,J_43sout,Y_43sout,fsout] = besselfunctions(a,sout,omega,rho,beta); 
     Y_sout = (2*pi*(1-cos(a)))*(fsout/rho)^0.5*sout^2.5;
     Q = -1i.*Y_sout.*(sout^-0.5).*(A.*J_43sout+B.*Y_43sout);

@@ -58,9 +58,11 @@ classdef Bifurcation
         end
 
         function [Q2out, P2out, Q3out, P3out, A2, A3] = forwardpropagate(obj, oms, P1outi)
-            [Q3out, P3out, A3] = vesselforward(P1outi,obj.Ls(3),obj.Rs(3),obj.as(3),oms,obj.rho,obj.betas(3),obj.B3_A3);
+            ves3 = obj.vessel(3);
+            ves2 = obj.vessel(2);
+            [Q3out, P3out, A3] = ves3.forwardpropagate(oms, ves3.s(ves3.L), P1outi);
     
-            [Q2out, P2out, A2] = vesselforward(P1outi,obj.Ls(2),obj.Rs(2),obj.as(2),oms,obj.rho,obj.betas(2),obj.B2_A2);
+            [Q2out, P2out, A2] = ves2.forwardpropagate(oms, ves2.s(ves2.L), P1outi);
         end
 
         function ves = vessel(obj, n)
@@ -86,7 +88,7 @@ classdef Bifurcation
                     B_A = obj.B2_A2;
                 case 3
                     if (obj.type == 2)
-                        [obj.RWK1(2), obj.RWK2(2), obj.CWK(2)];
+                        WKP = [obj.RWK1(2), obj.RWK2(2), obj.CWK(2)];
                         t = 2;
                     else
                         WKP = [0, 0, 0];

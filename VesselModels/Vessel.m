@@ -117,7 +117,7 @@ classdef Vessel
         function [Q, P, A] = forwardpropagate(obj, oms, s, P0outi)
             switch (obj.type)
                 case {2, 3}
-                    [Q, P, A] = vesselforward(P0outi,obj.L,obj.R,obj.a,oms,obj.rho,obj.beta,obj.B1_A1);
+                    [Q, P, A] = vesselforward(P0outi,s,obj.R,obj.a,oms,obj.rho,obj.beta,obj.B1_A1);
                 case {1, 5}
                     B = obj.B1_A1 .* obj.A1;
                     A = obj.A1;
