@@ -117,7 +117,7 @@ ves2 = bi2_8_3.vessel(1);
 %% Inverse Fourier Transform
 sols = [Q1; P1; Q8out; P8out; Q9out; P9out; Q10out; P10out; Q7out; P7out];
 
-solt = InverseFourierTransform(t, omegas, sols, F);
+solt = Vessel.InverseFourierTransform(t, omegas, sols, F);
 
 
 [q1, p1, q8, p8, q9, p9] = deal(solt(1, :), solt(2, :), solt(3, :), solt(4, :), solt(5, :), solt(6, :));

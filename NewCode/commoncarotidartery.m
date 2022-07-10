@@ -52,7 +52,7 @@ xout = artery.L;
 [Q1outlet, P1outlet] = artery.forwardpropagate(omegas, artery.s(xout));
 
 sols = [Q1; P1; Q1mid; P1mid; Q1outlet; P1outlet];
-solt = InverseFourierTransform(t, omegas, sols, F);
+solt = Vessel.InverseFourierTransform(t, omegas, sols, F);
 
 %% Inverse Fourier
 q1 = solt(1, :);

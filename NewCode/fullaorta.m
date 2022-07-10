@@ -161,7 +161,7 @@ ves5 = bi5_14_6.vessel(1);
 sols = [Q1; P1; Q11out; P11out; Q12out; P12out; Q13out; P13out;
     Q15out; P15out; Q16out; P16out; Q18out; P18out; Q19out; P19out];
 
-solt = InverseFourierTransform(t, omegas, sols, F);
+solt = Vessel.InverseFourierTransform(t, omegas, sols, F);
 
 toc
 
