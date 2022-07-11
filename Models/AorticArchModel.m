@@ -17,56 +17,77 @@ classdef AorticArchModel
         RW210 = 1.30183e+9;
         Cwk10 = 7.0871e-10;
 
-        BC = load('PreviousCode/automeris/aorta/BC.csv');
-        Inlet_Pressure = load('PreviousCode/automeris/aorta/Inlet_Pressure.csv');
-        bc_outlet_11_flow = load('PreviousCode/automeris/aorta/bc_outlet_11_flow.csv');
-        bc_outlet_11_Pressure = load('PreviousCode/automeris/aorta/bc_outlet_11_Pressure.csv');
-        lcca_outlet_12_flow = load('PreviousCode/automeris/aorta/lcca_outlet_12_flow.csv');
-        lcca_outlet_12_Pressure = load('PreviousCode/automeris/aorta/lcca_outlet_12_Pressure.csv');
-        lsub_outlet_13_flow = load('PreviousCode/automeris/aorta/lsub_outlet_13_flow.csv');
-        lsub_outlet_13_Pressure = load('PreviousCode/automeris/aorta/lsub_outlet_13_Pressure.csv');
+        data = readtable('Data/rsfs20170006supp1.xls', 'Sheet', sprintf('PD%d', 1));
+        As = table2array(readtable('Data/rsfs20170006supp2.xls', 'Sheet', sprintf('PD%d', 1)));
+        Qs = table2array(readtable('Data/rsfs20170006supp3.xls', 'Sheet', sprintf('PD%d', 1)));
     end
     
     methods
 
         function [sols, toterr] = model(obj)
+            [As, Qs] = deal(obj.As(:, 2:end), obj.Qs(:, 2:end)*1e-6);
             rho = obj.rho; % kg/m^3
-            seg1 = 0.5; % L1
+            Nx = height(Qs);
+
+            avQ = mean(Qs, 2);
+            Qdrops = find(abs((avQ(1:Nx-1) - avQ(2:Nx)) ./ avQ(1:Nx-1)) > 0.1);
+            pos1 = Qdrops(1);
+            pos3 = Qdrops(end);
+            
+            poses = round([1, pos1/2, pos1, (pos1 + pos3) / 2,...
+                pos3, (Nx + 2*pos3)/3, (2*Nx + pos3)/3, Nx]);
+            
+            xs = obj.data.AnalysisPlane(poses) * 1e-3;
+            Asysp = obj.data.MaximumAreaMeasured(poses) * 1e-6;
+            Adiasp = obj.data.MinimumAreaMeasured(poses) * 1e-6;
+            Psysp = obj.data.MaximumPressure(poses) * 133.32237;
+            Pdiasp = obj.data.MinimumPressure(poses) * 133.32237;
+            
+            Ls = (xs(2:end) - xs(1:length(xs)-1));
+            Rs = obj.data.EndDiastolicRadius(poses) * 1e-3;
+            betas = (1 - sqrt(Adiasp ./ Asysp)) ./ (Rs .* (Psysp - Pdiasp));
+            as = atan((Rs(1:length(Rs)-1) - Rs(2:end)) ./ Ls);
+            
+            parents = [2, 3, 4];
+            chila = [3, 4, 5];
+            Rpparents = sqrt(2 .* rho ./ betas(parents)) ./ (pi .* Rs(parents) .^ 2.5);
+            Rpchila = sqrt(2 .* rho ./ betas(chila)) ./ (pi .* Rs(chila) .^ 2.5);
+            Rpsa = (Rpparents .* Rpchila) ./ (Rpparents - Rpchila);
+            betasa = 2 * rho ./ (Rpsa .* pi .* Rs(chila) .^ 2.5) .^ 2;
+            Lsa = 2e-2;
+            
+            
+            %% Importing the data from the Flores plots
+            
             WKP7 = [obj.RW17, obj.RW27, obj.Cwk7];
             
-            
-            ves1 = Vessel(0.0152, 0.0704*seg1, 0.0184750925619521, 0.001325687943664,...
+            ves1 = Vessel(Rs(1), Ls(1), as(1), betas(1),...
                 rho, [0, 0, 0]);
             ves1.type = 5;
             
-            R2 = ves1.R - tan(ves1.a)*seg1*ves1.L;
-            
-            bi2_8_3 = Bifurcation([R2, 0.00635, 0.0139], [0.0704*(1-seg1), 0.0340, 0.008],...
-                [0.00132568794366357, 0.00192990582059595, 0.00140439444384107],...
-                rho, [0.0184750925619521, 0.001, 0.02499479361892],...
+            bi2_8_3 = Bifurcation([Rs(2), Rs(3), Rs(3)], [Ls(2), Lsa, Ls(3)],...
+                [betas(2), betasa(1), betas(3)],...
+                rho, [as(1), 0.001, as(3)],...
                 obj.RW18, obj.RW28, obj.Cwk8);
             
-            bi3_9_4 = Bifurcation([0.0139 0.0036 0.0137], [0.0080 0.0340 0.0090],...
-                [0.001404394443841,0.002421354408802,0.001412397459944], rho,...
-                [0.024994793618920,1e-03,0.022218565326719],...
+            bi3_9_4 = Bifurcation([Rs(3) Rs(4) Rs(4)], [Ls(3) Lsa Ls(4)],...
+                [betas(3),betasa(2),betas(4)], rho,...
+                [as(3),1e-03,as(4)],...
                 obj.RW19, obj.RW29, obj.Cwk9);
             
-            bi4_10_5 = Bifurcation([0.0137,0.0048,0.0135], [0.009,0.034,0.064737],...
-                [0.001412397459944,0.002158149171271,0.001388888888889], rho,...
-                [0.022218565326719,1e-03,0.018534417520118],...
+            bi4_10_5 = Bifurcation([Rs(4),Rs(5),Rs(5)], [Ls(4),Lsa,Ls(5)],...
+                [betas(4),betasa(3),betas(5)], rho,...
+                [as(4),1e-03,as(5)],...
                 obj.RW110, obj.RW210, obj.Cwk10);
             
-            seg6 = 0.5;
-            ves6 = Vessel(0.0123, seg6*0.152, 0.015788161735825, 0.001392773178531,...
-                rho, [0, 0, 0]);
+            ves6 = Vessel(Rs(6), Ls(6), as(6), betas(6), rho, [0, 0, 0]);
             
-            R7 = ves6.R - tan(ves6.a)*seg6*ves6.L;
-            
-            ves7 = Vessel(R7, 0.152*(1-seg6), 0.015788161735825, 0.001392773178531,...
-                rho, WKP7);
+            ves7 = Vessel(Rs(7), Ls(7), as(7), betas(7), rho, WKP7);
             ves7.type = 2;
-            
-            [omegas, F, t] = Vessel.ProcessBC(obj.BC);
+
+            xi = (0:24) / 25;
+            BC = [xi; Qs(1, :)].';
+            [omegas, F, t] = Vessel.ProcessBC(BC);
             
             %% Backward Propagation
             
@@ -108,77 +129,16 @@ classdef AorticArchModel
             
             
             %% Inverse Fourier Transform
-            sols = [Q1; P1; Q8out; P8out; Q9out; P9out; Q10out; P10out];
+            sols = [Q1; P1; Q8out; P8out; Q9out; P9out; Q10out; P10out; Q7out; P7out];
             
-            solt = InverseFourierTransform(t, omegas, sols, F);
+            solt = Vessel.InverseFourierTransform(t, omegas, sols, F);
             
             
-            [q1, p1, q11, p11, q12, p12] = deal(solt(1, :), solt(2, :), solt(3, :), solt(4, :), solt(5, :), solt(6, :));
+            [q1, p1, q8, p8, q9, p9] = deal(solt(1, :), solt(2, :), solt(3, :), solt(4, :), solt(5, :), solt(6, :));
             
-            [q13, p13] = deal(solt(7, :), solt(8, :));
-            
-            xi = t;
-            %% Error calculations
-            %Average
-            
-            yilsuboutletpressure = interp1q(obj.lsub_outlet_13_Pressure(1:end,1),obj.lsub_outlet_13_Pressure(1:end,2),xi);
-            for i = 2:length(t)-3
-                
-                err13(i) = abs((yilsuboutletpressure(i) - p13(i))/(yilsuboutletpressure(i)))^2;
-            
-            end
-            error13pressure = mean(err13);
-            
-            yilsuboutletflow = interp1q(obj.lsub_outlet_13_flow(1:end,1),obj.lsub_outlet_13_flow(1:end,2),xi);
-            for i = 2:length(t)-4
-                
-                err13(i) = abs((yilsuboutletflow(i)*10^-6 - q13(i))/(max(yilsuboutletflow)*10^-6))^2;
-            
-            end
-            error13flow = abs(mean(err13));
-            
-            yilccaoutletpressure = interp1q(obj.lcca_outlet_12_Pressure(1:end,1),obj.lcca_outlet_12_Pressure(1:end,2),xi);
-            for i = 2:length(t)-3
-                
-                err12(i) = abs((yilccaoutletpressure(i) - p12(i))/(yilccaoutletpressure(i)))^2;
-            
-            end
-            error12pressure = mean(err12);
-            
-            yilccaoutletflow = interp1q(obj.lcca_outlet_12_flow(1:end,1),obj.lcca_outlet_12_flow(1:end,2),xi);
-            for i = 2:length(t)-2
-                
-                err12(i) = ((yilccaoutletflow(i)*10^-6 - q12(i))/(max(yilccaoutletflow)*10^-6))^2;
-            
-            end
-            error12flow = abs(mean(err12));
-            
-            yibcoutletpressure = interp1q(obj.bc_outlet_11_Pressure(1:end,1),obj.bc_outlet_11_Pressure(1:end,2),xi);
-            for i = 2:length(t)-3
-                
-                err11(i) = abs((yibcoutletpressure(i) - p11(i))/(yibcoutletpressure(i)))^2;
-            
-            end
-            error11pressure = mean(err11);
-            
-            yibcoutletflow = interp1q(obj.bc_outlet_11_flow(1:end,1),obj.bc_outlet_11_flow(1:end,2),xi);
-            for i = 3:length(t)-3
-                
-                err11(i) = ((yibcoutletflow(i)*10^-6 - q11(i))/(max(yibcoutletflow)*10^-6))^2;
-            
-            end
-            error11flow = mean(err11);
-            
-            yiinletpressure = interp1q(obj.Inlet_Pressure(1:end,1),obj.Inlet_Pressure(1:end,2),xi);
-            for i = 2:length(t)-3
-                
-                err1(i) = abs((yiinletpressure(i) - p1(i))/(yiinletpressure(i)))^2;
-            
-            end
-            error1pressure = mean(err1);
-
-            toterr = error1pressure + error11flow + error11pressure + error12flow...
-                + error12pressure + error13flow + error13pressure;
+            [q10, p10, q7, p7] = deal(solt(7, :), solt(8, :), solt(9, :), solt(10, :));
+            q7meas = interp1(xi, Qs(end, :), t);
+            toterr = mean(mean((q7meas - q7).^2));
         end
 
         function err = globalerr(obj, xp, scaler, params, actsol)

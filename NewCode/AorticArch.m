@@ -24,8 +24,8 @@ poses = round([1, pos1/2, pos1, (pos1 + pos3) / 2,...
     pos3, (Nx + 2*pos3)/3, (2*Nx + pos3)/3, Nx]);
 
 xs = data.AnalysisPlane(poses) * 1e-3;
-Asysp = data.MaximumAreaMeasured(poses) * 1e-6;
-Adiasp = data.MinimumAreaMeasured(poses) * 1e-6;
+Asysp = data.MaximumAreaMeasured(poses) * 1e-4;
+Adiasp = data.MinimumAreaMeasured(poses) * 1e-4;
 Psysp = data.MaximumPressure(poses) * 133.32237;
 Pdiasp = data.MinimumPressure(poses) * 133.32237;
 
@@ -45,8 +45,14 @@ Lsa = 2e-2;
 plotting = true;
 
 %% Importing the data from the Flores plots
-
-WKP7 = [17513091.0464560, 214342021.080118, 4.67859041979278e-09];
+WKPs = [814723686393.179 905791937075.619 1.26986816293506e-07...
+    913375856139.019 632359246225.410 9.75404049994095e-08 278498218867.048...
+    546881519204.984 9.57506835434298e-07 964888535199.277...
+    157613081677.548 9.70592781760616e-07];
+WKP7 = WKPs(1:3);
+WKP8 = WKPs(4:6);
+WKP9 = WKPs(7:9);
+WKP10 = WKPs(10:12);
 
 ves1 = Vessel(Rs(1), Ls(1), as(1), betas(1),...
     rho, [0, 0, 0]);
@@ -55,17 +61,17 @@ ves1.type = 5;
 bi2_8_3 = Bifurcation([Rs(2), Rs(3), Rs(3)], [Ls(2), Lsa, Ls(3)],...
     [betas(2), betasa(1), betas(3)],...
     rho, [as(1), 0.001, as(3)],...
-    51918000, 1060800000, 8.6974e-10);
+    WKP8(1), WKP8(2), WKP8(3));
 
 bi3_9_4 = Bifurcation([Rs(3) Rs(4) Rs(4)], [Ls(3) Lsa Ls(4)],...
     [betas(3),betasa(2),betas(4)], rho,...
     [as(3),1e-03,as(4)],...
-    191515000, 5.22129e+09, 1.767e-10);
+    WKP9(1), WKP9(2), WKP9(3));
 
 bi4_10_5 = Bifurcation([Rs(4),Rs(5),Rs(5)], [Ls(4),Lsa,Ls(5)],...
     [betas(4),betasa(3),betas(5)], rho,...
     [as(4),1e-03,as(5)],...
-    98820000, 1.30183e+09, 7.0871e-10);
+    WKP10(1), WKP10(2), WKP10(3));
 
 ves6 = Vessel(Rs(6), Ls(6), as(6), betas(6), rho, [0, 0, 0]);
 
@@ -298,7 +304,7 @@ if (plotting)
     ax.YAxis.FontSize = fontxt2;
     
     figure
-    plot(t,q7*10^6,colour1,'LineWidth',ld)
+    plot(t,q7*1e6,colour1,'LineWidth',ld)
     hold on
     plot((0:24) / 25, Qs(end, :),colour2,'LineWidth',ld)
     grid on
