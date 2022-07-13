@@ -74,7 +74,7 @@ classdef Bifurcation
                     if (obj.type == 5)
                         A = obj.A1;
                         B_A = obj.B1 ./ obj.A1;
-                        t = 5;
+                        t = 4;
                     else
                         B_A = obj.B1_A1;
                     end

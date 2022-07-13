@@ -100,7 +100,7 @@ classdef Vessel
                     [J_13s4in,Y_13s4in,J_43s4in,Y_43s4in,fs4in] = besselfunctions(obj.a,s4in,oms,obj.rho,obj.beta);      
                     Y_s4in = (2*pi*(1-cos(obj.a)))*(fs4in/obj.rho)^0.5*s4in^2.5;
                     obj.Yeff = -1i.*Y_s4in.*(J_43s4in+obj.B1_A1.*Y_43s4in)./(J_13s4in+obj.B1_A1.*Y_13s4in);
-                case 5
+                case {4, 5}
                     Yeff_2 = prev.Yeff;
                     s4out = obj.s(obj.L);
                     [J_13s4out,Y_13s4out,J_43s4out,Y_43s4out,fs4out] = besselfunctions(obj.a,s4out,oms,obj.rho,obj.beta);    
@@ -118,7 +118,7 @@ classdef Vessel
             switch (obj.type)
                 case {2, 3}
                     [Q, P, A] = vesselforward(P0outi,s,obj.R,obj.a,oms,obj.rho,obj.beta,obj.B1_A1);
-                case {1, 5}
+                case {1, 4, 5}
                     B = obj.B1_A1 .* obj.A1;
                     A = obj.A1;
                     [J_13s1,Y_13s1,J_43s1,Y_43s1,~] = besselfunctions(obj.a,s,oms,obj.rho,obj.beta); 
