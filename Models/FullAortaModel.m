@@ -3,11 +3,26 @@ classdef FullAortaModel
     %   Detailed explanation goes here
     
     properties
-        be = [0.001325687943664,0.001404394443841,0.001412397459944,0.001388888888889,...
-            0.001392773178531,0.001605713771886,0.001624702408675,0.001630675129943,...
-            0.001614265805007,0.001647214889066,0.001929905820596,0.002421354408802,...
-            0.002158149171271,0.002224647912390,0.002382086707956,0.002677500428400,...
-            0.002677500428400,0.003063224963241,0.001973788094110,0.001973788094110];
+        be1 = 0.001325687943664;
+        be2 = 0.001404394443841;
+        be3 = 0.001412397459944;
+        be4 = 0.001388888888889;
+        be5 = 0.001392773178531;
+        be6 = 0.001605713771886;
+        be7 = 0.001624702408675;
+        be8 = 0.001630675129943;
+        be9 = 0.001614265805007;
+        be10 = 0.001647214889066;
+        be11 = 0.001929905820596;
+        be12 = 0.002421354408802;
+        be13 = 0.002158149171271;
+        be14 = 0.002224647912390;
+        be15 = 0.002382086707956;
+        be16 = 0.002677500428400;
+        be17 = 0.002677500428400;
+        be18 = 0.003063224963241;
+        be19 = 0.001973788094110;
+        be20 = 0.001973788094110;
         RW1 = [0,0,0,0,0,0,0,0,0,0,5.1918,19.1515,9.882,11.7617,17.4352,34.1378,34.1378,74.0167,5.9149,5.9149]*(10^7);
         RW2 = [0,0,0,0,0,0,0,0,0,0,10.6080,52.2129,13.0183,7.5726,5.5097,5.3949,5.3949,46.2252,10.1737,10.1737]*(10^8);
         CWK = [0,0,0,0,0,0,0,0,0,0,8.6974,1.767,7.0871,12.1836,16.7453,17.1017,17.1017,1.9959,9.0686,9.0686]*(10^-10);
@@ -33,7 +48,7 @@ classdef FullAortaModel
     
     methods
         
-        function [sols, toterr, omegas] = model(obj)
+        function [sols, toterr, solt, t, omegas] = model(obj)
             %METHOD1 Summary of this method goes here
             %   Detailed explanation goes here
             R=obj.Rin;
@@ -45,7 +60,10 @@ classdef FullAortaModel
             
             a(1:10) = atan((R(1:10)-Rout(1:10)) ./ L(1:10));
             a = [a(1:10),0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001];
-            be = obj.be;
+            be = zeros(1, 20);
+            for i=1:20
+                be(i) = obj.(sprintf('be%d', i));
+            end
             rho = 1060;
             
             [RW1, RW2, CWK] = deal(obj.RW1, obj.RW2, obj.CWK);
@@ -167,7 +185,7 @@ classdef FullAortaModel
             
             % Inverse Fourier Transform
             sols = [P1; Q11out; P11out; Q12out; P12out; Q13out; P13out;
-                Q15out; P15out; Q16out; P16out; Q18out; P18out; Q19out; P19out];
+                Q15out; P15out; Q16out; P16out; Q18out; P18out; Q19out; P19out; Q1out];
             
             solt = Vessel.InverseFourierTransform(t, omegas, sols, F);
             
@@ -304,6 +322,18 @@ classdef FullAortaModel
                 error16flow, error16pressure, error18flow, error18pressure, error19flow, error19pressure]);
             
         end
+
+        function err = globalerr(obj, xp, scaler, params, actsol)
+            x = scaler.inv_transform(xp);
+            for field = 1:length(params)
+                obj.(params(field)) = x(field);
+            end
+            sol = obj.model();
+            spe = (abs(sol - actsol) .^ 2) ./ abs(actsol) .^ 2 ;
+            mspe = mean(spe, 2);
+            err = sum(mspe);
+        end
+        
     end
 end
 

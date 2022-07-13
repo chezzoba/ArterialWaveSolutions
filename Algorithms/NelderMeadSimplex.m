@@ -7,6 +7,8 @@ classdef NelderMeadSimplex
         plt = true;
         x0Tol = 5;
         lenX = 6;
+        MaxFunEvals = 1000;
+        MaxIter = 1000;
     end
 
     methods
@@ -15,9 +17,11 @@ classdef NelderMeadSimplex
             %Fit - Optimise function fun, with an initial guess x0
             if (obj.plt)
                 options = optimset('PlotFcns',@optimplotfval,...
-                'TolX', obj.TolX, 'TolFun', obj.TolFun);
+                'TolX', obj.TolX, 'TolFun', obj.TolFun,...
+                'MaxFunEvals', obj.MaxFunEvals, 'MaxIter', obj.MaxIter);
             else
-                options = optimset('TolX', obj.TolX, 'TolFun', obj.TolFun);
+                options = optimset('TolX', obj.TolX, 'TolFun', obj.TolFun,...
+                    'MaxFunEvals', obj.MaxFunEvals, 'MaxIter', obj.MaxIter);
             end
 
             nguesses = 0;
