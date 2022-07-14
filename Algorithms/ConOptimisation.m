@@ -16,11 +16,11 @@ classdef ConOptimisation
             if (obj.plt)
                 options = optimoptions(@fmincon, 'PlotFcns', @optimplotfval,...
     'TolX', obj.TolX, 'TolFun', obj.TolFun, 'StepTolerance', obj.StepTolerance,...
-    'OptimalityTolerance', 1e-20, 'MaxFunctionEvaluations', 3e3*length(obj.lenX));
+    'OptimalityTolerance', 1e-20, 'MaxFunctionEvaluations', 6e3*length(obj.lenX));
             else
                 options = optimoptions(@fmincon, 'TolX', obj.TolX,...
                     'TolFun', obj.TolFun, 'StepTolerance', obj.StepTolerance,...
-                    'OptimalityTolerance', 1e-20, 'MaxFunctionEvaluations', 3e3*length(obj.lenX));
+                    'OptimalityTolerance', 1e-20, 'MaxFunctionEvaluations', 6e3*length(obj.lenX));
             end
 
             nguesses = 0;

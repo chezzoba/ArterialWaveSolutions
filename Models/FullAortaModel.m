@@ -333,6 +333,14 @@ classdef FullAortaModel
             mspe = mean(spe, 2);
             err = sum(mspe);
         end
+
+        function err = measurementerr(obj, xp, scaler, params)
+            x = scaler.inv_transform(xp);
+            for field = 1:length(params)
+                obj.(params(field)) = x(field);
+            end
+            [~, err] = obj.model(false);
+        end
         
     end
 end
