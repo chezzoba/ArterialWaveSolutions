@@ -51,7 +51,7 @@ classdef FullAortaModel
     
     methods
         
-        function [sols, toterr, solt, t, omegas] = model(obj)
+        function [sols, toterr, solt, t, omegas] = model(obj, glob)
             %METHOD1 Summary of this method goes here
             %   Detailed explanation goes here
             R=obj.Rin;

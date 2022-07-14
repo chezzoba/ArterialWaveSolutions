@@ -5,63 +5,64 @@ clear;
 aorta = FullAortaModel;
 zfun = @(x, om) (x(1) + x(2) - 1i .* om .* x(1) .* x(2) .* x(3))...
         ./ (1 - 1i .* om .* x(2) .* x(3)); % x = [RW1, RW2, Cwk]
-scaler = MinMaxScaler([1e7, 1e8, 0], [1e9,1e10,2e-9]);
+
+scaler = MinMaxScaler([1e7, 1e8, 0], [1e9,6e9,2e-9]);
+
+params = [];
+for i=1:20
+    params = [params sprintf("be%d", i)];
+end
+
+params = [params ["RW114" "RW214" "CWK14"]];
+
+bescaler = MinMaxScaler([repmat(0.001, 1, 20) [1e7, 1e8, 0]],...
+            [repmat(0.005, 1, 20) [1e9,6e9,2e-9]]);
+
+problem = OptimisationProblem(aorta, params, bescaler);
 
 measurements = 1;
 
 switch (measurements)
     case 0
-        [sols, ~, solt, t, omegas] = aorta.model();
+        [sols, erract, solt, t, omegas] = aorta.model();
         opt = NelderMeadSimplex;
         opt.lenX = 3;
         opt.x0Tol = 1e14;
         
-%         Z11 = sols(3, :) ./ sols(2, :);
-%         fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), omegas) - Z11).^2);
-%         WK11 = scaler.inv_transform(opt.fit(fun, 0))
-%         Perr11 = 100.*opt.relerr(WK11, [aorta.RW1(11), aorta.RW2(11), aorta.CWK(11)])
-% 
-%         Z12 = sols(5, :) ./ sols(4, :);
-%         fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), omegas) - Z12).^2);
-%         WK12 = scaler.inv_transform(opt.fit(fun, 0))
-%         Perr12 = 100.*opt.relerr(WK12, [aorta.RW1(12), aorta.RW2(12), aorta.CWK(12)])
-%         
-%         Z13 = sols(7, :) ./ sols(6, :);
-%         fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), omegas) - Z13).^2);
-%         WK13 = scaler.inv_transform(opt.fit(fun, 0))
-%         Perr13 = 100.*opt.relerr(WK13, [aorta.RW1(13), aorta.RW2(13), aorta.CWK(13)])
-% 
-%         Z15 = sols(9, :) ./ sols(8, :);
-%         fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), omegas) - Z15).^2);
-%         WK15 = scaler.inv_transform(opt.fit(fun, 0))
-%         Perr15 = 100.*opt.relerr(WK15, [aorta.RW1(15), aorta.RW2(15), aorta.CWK(15)])
-% 
-%         Z16 = sols(11, :) ./ sols(10, :);
-%         fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), omegas) - Z16).^2);
-%         WK16 = scaler.inv_transform(opt.fit(fun, 0))
-%         Perr16 = 100.*opt.relerr(WK16, [aorta.RW1(16), aorta.RW2(16), aorta.CWK(16)])
-% 
-%         Z18 = sols(13, :) ./ sols(12, :);
-%         fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), omegas) - Z18).^2);
-%         WK18 = scaler.inv_transform(opt.fit(fun, 0))
-%         Perr18 = 100.*opt.relerr(WK18, [aorta.RW1(18), aorta.RW2(18), aorta.CWK(18)])
-% 
-%         Z19 = sols(15, :) ./ sols(14, :);
-%         fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), omegas) - Z19).^2);
-%         WK19 = scaler.inv_transform(opt.fit(fun, 0))
-%         Perr19 = 100.*opt.relerr(WK19, [aorta.RW1(19), aorta.RW2(19), aorta.CWK(19)])
+        Z11 = sols(3, :) ./ sols(2, :);
+        fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), omegas) - Z11).^2);
+        WK11 = scaler.inv_transform(opt.fit(fun, 0))
+        Perr11 = 100.*opt.relerr(WK11, [aorta.RW1(11), aorta.RW2(11), aorta.CWK(11)])
 
-        params = [];
-        for i=1:20
-            params = [params sprintf("be%d", i)];
-        end
+        Z12 = sols(5, :) ./ sols(4, :);
+        fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), omegas) - Z12).^2);
+        WK12 = scaler.inv_transform(opt.fit(fun, 0))
+        Perr12 = 100.*opt.relerr(WK12, [aorta.RW1(12), aorta.RW2(12), aorta.CWK(12)])
         
-        params = [params ["RW114" "RW214" "CWK14"]];
+        Z13 = sols(7, :) ./ sols(6, :);
+        fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), omegas) - Z13).^2);
+        WK13 = scaler.inv_transform(opt.fit(fun, 0))
+        Perr13 = 100.*opt.relerr(WK13, [aorta.RW1(13), aorta.RW2(13), aorta.CWK(13)])
 
-        bescaler = MinMaxScaler([repmat(0.001, 1, 20) [1e7, 1e8, 0]],...
-            [repmat(0.005, 1, 20) [1e9,1e10,2e-9]]);
+        Z15 = sols(9, :) ./ sols(8, :);
+        fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), omegas) - Z15).^2);
+        WK15 = scaler.inv_transform(opt.fit(fun, 0))
+        Perr15 = 100.*opt.relerr(WK15, [aorta.RW1(15), aorta.RW2(15), aorta.CWK(15)])
 
-        problem = OptimisationProblem(aorta, params, bescaler);
+        Z16 = sols(11, :) ./ sols(10, :);
+        fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), omegas) - Z16).^2);
+        WK16 = scaler.inv_transform(opt.fit(fun, 0))
+        Perr16 = 100.*opt.relerr(WK16, [aorta.RW1(16), aorta.RW2(16), aorta.CWK(16)])
+
+        Z18 = sols(13, :) ./ sols(12, :);
+        fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), omegas) - Z18).^2);
+        WK18 = scaler.inv_transform(opt.fit(fun, 0))
+        Perr18 = 100.*opt.relerr(WK18, [aorta.RW1(18), aorta.RW2(18), aorta.CWK(18)])
+
+        Z19 = sols(15, :) ./ sols(14, :);
+        fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), omegas) - Z19).^2);
+        WK19 = scaler.inv_transform(opt.fit(fun, 0))
+        Perr19 = 100.*opt.relerr(WK19, [aorta.RW1(19), aorta.RW2(19), aorta.CWK(19)])
         
         problem.optimiser.x0Tol = 5;
         xpred1 = problem.fitsolution(0);
@@ -90,7 +91,7 @@ switch (measurements)
         Perr11 = 100.*opt.relerr(WK11, [aorta.RW1(11), aorta.RW2(11), aorta.CWK(11)])
 
         [q12, p12] = deal(aorta.lcca_outlet_12_flow, aorta.lcca_outlet_12_Pressure);
-        N = length(p12) - 1;
+        N = length(p12) - 2;
         q12 = interp1(q12(:, 1), q12(:, 2), p12(2:N, 1));
         P12 = fft(p12(2:N, 2)/N);
         Q12 = fft(q12/N).*1e-6;
@@ -101,11 +102,11 @@ switch (measurements)
         Perr12 = 100.*opt.relerr(WK12, [aorta.RW1(12), aorta.RW2(12), aorta.CWK(12)])
 
         [q13, p13] = deal(aorta.lsub_outlet_13_flow, aorta.lsub_outlet_13_Pressure);
-        N = length(p13) - 1;
-        q13 = interp1(q13(:, 1), q13(:, 2), p13(1:N, 1));
-        P13 = fft(p13(1:N, 2)/N);
+        N = length(p13) - 4;
+        q13 = interp1(q13(:, 1), q13(:, 2), p13(2:N, 1));
+        P13 = fft(p13(2:N, 2)/N);
         Q13 = fft(q13/N).*1e-6;
-        om = -2*pi/(p13(N, 1)) * (0:N-1);
+        om = -2*pi/(p13(N, 1)) * (0:N-2);
         Z13 = P13 ./ Q13;
         fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), om) - Z13.').^2);
         WK13 = scaler.inv_transform(opt.fit(fun, 0));
@@ -136,22 +137,22 @@ switch (measurements)
         WK17 = WK16;
 
         [q18, p18] = deal(aorta.imma_outlet_18_flow, aorta.imma_outlet_18_Pressure);
-        N = length(p18) - 1;
-        q18 = interp1(q18(:, 1), q18(:, 2), p18(2:N, 1));
-        P18 = fft(p18(2:N, 2)/N);
+        N = length(p18) - 3;
+        q18 = interp1(q18(:, 1), q18(:, 2), p18(6:N, 1));
+        P18 = fft(p18(6:N, 2)/N);
         Q18 = fft(q18/N).*1e-6;
-        om = -2*pi/(p18(N, 1)) * (0:N-2);
+        om = -2*pi/(p18(N, 1)) * (0:N-6);
         Z18 = P18 ./ Q18;
         fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), om) - Z18.').^2);
         WK18 = scaler.inv_transform(opt.fit(fun, 0));
         Perr18 = 100.*opt.relerr(WK18, [aorta.RW1(18), aorta.RW2(18), aorta.CWK(18)])
 
         [q19, p19] = deal(aorta.riliac_outlet_19_flow, aorta.riliac_outlet_19_Pressure);
-        N = length(p19) - 1;
-        q19 = interp1(q19(:, 1), q19(:, 2), p19(1:N, 1));
-        P19 = fft(p19(1:N, 2)/N);
+        N = length(p19) - 2;
+        q19 = interp1(q19(:, 1), q19(:, 2), p19(2:N, 1));
+        P19 = fft(p19(2:N, 2)/N);
         Q19 = fft(q19/N).*1e-6;
-        om = -2*pi/(p19(N, 1)) * (0:N-1);
+        om = -2*pi/(p19(N, 1)) * (0:N-2);
         Z19 = P19 ./ Q19;
         fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), om) - Z19.').^2);
         WK19 = scaler.inv_transform(opt.fit(fun, 0));
@@ -159,8 +160,30 @@ switch (measurements)
 
         WK20 = WK19;
 
+        [aorta.RW1(11), aorta.RW2(11), aorta.CWK(11)] = deal(WK11(1), WK11(2), WK11(3));
+        [aorta.RW1(12), aorta.RW2(12), aorta.CWK(12)] = deal(WK12(1), WK12(2), WK12(3));
+        [aorta.RW1(13), aorta.RW2(13), aorta.CWK(13)] = deal(WK13(1), WK13(2), WK13(3));
+        [aorta.RW1(15), aorta.RW2(15), aorta.CWK(15)] = deal(WK15(1), WK15(2), WK15(3));
+        [aorta.RW1(16), aorta.RW2(16), aorta.CWK(16)] = deal(WK16(1), WK16(2), WK16(3));
+        [aorta.RW1(17), aorta.RW2(17), aorta.CWK(17)] = deal(WK17(1), WK17(2), WK17(3));
+        [aorta.RW1(18), aorta.RW2(18), aorta.CWK(18)] = deal(WK18(1), WK18(2), WK18(3));
+        [aorta.RW1(19), aorta.RW2(19), aorta.CWK(19)] = deal(WK19(1), WK19(2), WK19(3));
+        [aorta.RW1(20), aorta.RW2(20), aorta.CWK(20)] = deal(WK20(1), WK20(2), WK20(3));
+        problem.model = aorta;
 
+        params = [];
+        for i=1:20
+            params = [params sprintf("be%d", i)];
+        end
 
+        params = [params ["RW114" "RW214" "CWK14"]];
+
+        bescaler = MinMaxScaler([repmat(0.001, 1, 20) [1e7, 1e8, 0]],...
+                    [repmat(0.005, 1, 20) [1e9,6e9,2e-9]]);
+
+        problem.optimiser.x0Tol = 1;
+        [xpred1, errP, erract, nguesses] = problem.fitmeasurements(0);
+        bePerr1 = 100 .* opt.relerr(problem.xact, bescaler.inv_transform(xpred1))
 
 end
 
