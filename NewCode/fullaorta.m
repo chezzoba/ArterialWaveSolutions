@@ -22,22 +22,22 @@ a(1:10) = atan((Rin(1:10)-Rout(1:10))./L(1:10));
 a = [a(1:10),0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001];
 be = (1 - v^2) ./ (E .* h);
 
-load('../Data/fullaortapredictedvalues.mat');
-
-be=xpred2t(1:20);
-
-[RW1(14), RW2(14), CWK(14)] = deal(xpred2t(21),xpred2t(22),xpred2t(23));
-
-[RW1(11), RW2(11), CWK(11)] = deal(xpred2t(24),xpred2t(25),xpred2t(26));
-[RW1(12), RW2(12), CWK(12)] = deal(xpred2t(27),xpred2t(28),xpred2t(29));
-[RW1(13), RW2(13), CWK(13)] = deal(xpred2t(30),xpred2t(31),xpred2t(32));
-[RW1(15), RW2(15), CWK(15)] = deal(xpred2t(33),xpred2t(34),xpred2t(35));
-[RW1(16), RW2(16), CWK(16)] = deal(xpred2t(36),xpred2t(37),xpred2t(38));
-[RW1(18), RW2(18), CWK(18)] = deal(xpred2t(39),xpred2t(40),xpred2t(41));
-[RW1(19), RW2(19), CWK(19)] = deal(xpred2t(42),xpred2t(43),xpred2t(44));
-
-[RW1(17), RW2(17), CWK(17)] = deal(RW1(16), RW2(16), CWK(16));
-[RW1(20), RW2(20), CWK(20)] = deal(RW1(19), RW2(19), CWK(19));
+% load('../Data/fullaortapredictedvalues.mat');
+% 
+% be=xpred2t(1:20);
+% 
+% [RW1(14), RW2(14), CWK(14)] = deal(xpred2t(21),xpred2t(22),xpred2t(23));
+% 
+% [RW1(11), RW2(11), CWK(11)] = deal(xpred2t(24),xpred2t(25),xpred2t(26));
+% [RW1(12), RW2(12), CWK(12)] = deal(xpred2t(27),xpred2t(28),xpred2t(29));
+% [RW1(13), RW2(13), CWK(13)] = deal(xpred2t(30),xpred2t(31),xpred2t(32));
+% [RW1(15), RW2(15), CWK(15)] = deal(xpred2t(33),xpred2t(34),xpred2t(35));
+% [RW1(16), RW2(16), CWK(16)] = deal(xpred2t(36),xpred2t(37),xpred2t(38));
+% [RW1(18), RW2(18), CWK(18)] = deal(xpred2t(39),xpred2t(40),xpred2t(41));
+% [RW1(19), RW2(19), CWK(19)] = deal(xpred2t(42),xpred2t(43),xpred2t(44));
+% 
+% [RW1(17), RW2(17), CWK(17)] = deal(RW1(16), RW2(16), CWK(16));
+% [RW1(20), RW2(20), CWK(20)] = deal(RW1(19), RW2(19), CWK(19));
 
 %% Importing the data from the Flores plots
 load('../PreviousCode/automeris/aorta/BC.csv')

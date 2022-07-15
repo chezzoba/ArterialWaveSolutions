@@ -198,6 +198,6 @@ switch (measurements)
         fullproblem = OptimisationProblem(FullAortaModel, fullparams, fullscaler);
         [xpred2, errP2, erract2] = fullproblem.fitmeasurements(fullscaler.transform(x0))
         xpred2t = fullscaler.inv_transform(xpred2);
-            
+        
 end
 
