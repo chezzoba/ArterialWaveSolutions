@@ -107,6 +107,14 @@ for i = 2:length(t)-2
 end
 erroroutletflow = sqrt(mean(errmid));
 
+%MAX
+emaxmidflow = max(abs((q1mid(2:end-1).'-yimidflow(2:end-1)*10^-6)./(yimidflow(2:end-1)*10^-6)));
+emaxoutflow = max(abs((q1outlet(2:end-1).'-yioutletflow(2:end-1)*10^-6)./(yioutletflow(2:end-1)*10^-6)));
+emaxinletpressure = max(abs((p1(2:end-1).'-yiinletpressure(2:end-1))./(yiinletpressure(2:end-1))));
+emaxmidpressure = max(abs((p1mid(2:end-1).'-yimidpressure(2:end-1))./(yimidpressure(2:end-1))));
+emaxoutpressure = max(abs((p1outlet(2:end-1).'-yioutletpressure(2:end-1))./(yioutletpressure(2:end-1))));
+
+
 %SYS
 esysmidflow = (max(q1mid(2:end-1)-max(yimidflow(2:end-1))*10^-6))/max(yimidflow(2:end-1)*10^-6);
 esysoutflow = (max(q1outlet(2:end-1)-max(yioutletflow(2:end-1))*10^-6))/max(yioutletflow(2:end-1)*10^-6);
@@ -169,7 +177,9 @@ t2.FontSize = fontxt2;
 txt = ['avg%: ',num2str(round(errormidflow*100,2))];
 t1 = text(0.8,10.5,txt);
 t1.FontSize = fontxt;
-
+txt = ['max%: ',num2str(round(emaxmidflow*100,2))];
+t1 = text(0.8,9.5,txt);
+t1.FontSize = fontxt;
 txt = ['sys%: ',num2str(round(esysmidflow*100,2))];
 t1 = text(0.8,8.5,txt);
 t1.FontSize = fontxt;
@@ -203,7 +213,9 @@ t2.FontSize = fontxt2;
 txt = ['avg%: ',num2str(round(erroroutletflow*100,2))];
 t1 = text(0.8,10.5,txt);
 t1.FontSize = fontxt;
-
+txt = ['max%: ',num2str(round(emaxoutflow*100,2))];
+t1 = text(0.8,9.5,txt);
+t1.FontSize = fontxt;
 txt = ['sys%: ',num2str(round(esysoutflow*100,2))];
 t1 = text(0.8,8.5,txt);
 t1.FontSize = fontxt;
@@ -236,7 +248,9 @@ t2.FontSize = fontxt2;
 txt = ['avg%: ',num2str(round(errorinletpressure*100,2))];
 t1 = text(0.8,16.4,txt);
 t1.FontSize = fontxt;
-
+txt = ['max%: ',num2str(round(emaxinletpressure*100,2))];
+t1 = text(0.8,15.7,txt);
+t1.FontSize = fontxt;
 txt = ['sys%: ',num2str(round(esysinletpressure*100,2))];
 t1 = text(0.8,15,txt);
 t1.FontSize = fontxt;
@@ -270,7 +284,9 @@ t2.FontSize = fontxt2;
 txt = ['avg%: ',num2str(round(errormidpressure*100,2))];
 t1 = text(0.8,16.4,txt);
 t1.FontSize = fontxt;
-
+txt = ['max%: ',num2str(round(emaxmidpressure*100,2))];
+t1 = text(0.8,15.7,txt);
+t1.FontSize = fontxt;
 txt = ['sys%: ',num2str(round(esysmidpressure*100,2))];
 t1 = text(0.8,15,txt);
 t1.FontSize = fontxt;
@@ -304,7 +320,9 @@ t2.FontSize = fontxt2;
 txt = ['avg%: ',num2str(round(erroroutletpressure*100,2))];
 t1 = text(0.8,16.4,txt);
 t1.FontSize = fontxt;
-
+txt = ['max%: ',num2str(round(emaxoutpressure*100,2))];
+t1 = text(0.8,15.7,txt);
+t1.FontSize = fontxt;
 txt = ['sys%: ',num2str(round(esysoutpressure*100,2))];
 t1 = text(0.8,15,txt);
 t1.FontSize = fontxt;
@@ -339,7 +357,9 @@ t2.FontSize = fontxt2;
 txt = ['avg%: ',num2str(round(erroroutletpressure*100,2))];
 t1 = text(0.8,16.4,txt);
 t1.FontSize = fontxt;
-
+txt = ['max%: ',num2str(round(emaxoutpressure*100,2))];
+t1 = text(0.8,15.7,txt);
+t1.FontSize = fontxt;
 txt = ['sys%: ',num2str(round(esysoutpressure*100,2))];
 t1 = text(0.8,15,txt);
 t1.FontSize = fontxt;

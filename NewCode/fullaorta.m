@@ -197,6 +197,7 @@ for i = 2:length(t)-2
 
 end
 error19pressure = sqrt(mean(err19));
+emax19pressure = sqrt(max(err19));
 
 yiliacoutletflow = interp1q(riliac_outlet_19_flow(1:end,1),riliac_outlet_19_flow(1:end,2),xi);
 for i = 2:length(t)-2
@@ -205,6 +206,7 @@ for i = 2:length(t)-2
 
 end
 error19flow = sqrt(mean(err19));
+emax19flow = sqrt(max(err19));
 
 yiimmaoutletpressure = interp1q(imma_outlet_18_Pressure(1:end,1),imma_outlet_18_Pressure(1:end,2),xi);
 for i = 2:length(t)-2
@@ -213,6 +215,7 @@ for i = 2:length(t)-2
 
 end
 error18pressure = sqrt(mean(err18));
+emax18pressure = sqrt(max(err18));
 
 yiimmaoutletflow = interp1q(imma_outlet_18_flow(1:end,1),imma_outlet_18_flow(1:end,2),xi);
 for i = 2:length(t)-2
@@ -221,6 +224,7 @@ for i = 2:length(t)-2
 
 end
 error18flow = sqrt(mean(err18));
+emax18flow = sqrt(max(err18));
 
 yirenaoutletpressure = interp1q(rena_outlet_16_Pressure(1:end,1),rena_outlet_16_Pressure(1:end,2),xi);
 for i = 2:length(t)-2
@@ -229,6 +233,7 @@ for i = 2:length(t)-2
 
 end
 error16pressure = sqrt(mean(err16));
+emax16pressure = sqrt(max(err16));
 
 yirenaoutletflow = interp1q(rena_outlet_16_flow(1:end,1),rena_outlet_16_flow(1:end,2),xi);
 for i = 2:length(t)-5
@@ -237,6 +242,7 @@ for i = 2:length(t)-5
 
 end
 error16flow = sqrt(mean(err16));
+emax16flow = sqrt(max(err16));
 
 yismaoutletpressure = interp1q(sma_outlet_15_Pressure(1:end,1),sma_outlet_15_Pressure(1:end,2),xi);
 for i = 2:length(t)-3
@@ -245,6 +251,7 @@ for i = 2:length(t)-3
 
 end
 error15pressure = sqrt(mean(err15));
+emax15pressure = sqrt(max(err15));
 
 yismaoutletflow = interp1q(sma_outlet_15_flow(1:end,1),sma_outlet_15_flow(1:end,2),xi);
 for i = 2:length(t)-5
@@ -253,6 +260,7 @@ for i = 2:length(t)-5
 
 end
 error15flow = sqrt(mean(err15));
+emax15flow = sqrt(max(err15));
 
 yilsuboutletpressure = interp1q(lsub_outlet_13_Pressure(1:end,1),lsub_outlet_13_Pressure(1:end,2),xi);
 for i = 2:length(t)-3
@@ -261,6 +269,7 @@ for i = 2:length(t)-3
 
 end
 error13pressure = sqrt(mean(err13));
+emax13pressure = sqrt(max(err13));
 
 yilsuboutletflow = interp1q(lsub_outlet_13_flow(1:end,1),lsub_outlet_13_flow(1:end,2),xi);
 for i = 2:length(t)-4
@@ -269,6 +278,7 @@ for i = 2:length(t)-4
 
 end
 error13flow = sqrt(abs(mean(err13)));
+emax13flow = sqrt(max(err13));
 
 yilccaoutletpressure = interp1q(lcca_outlet_12_Pressure(1:end,1),lcca_outlet_12_Pressure(1:end,2),xi);
 for i = 2:length(t)-3
@@ -277,6 +287,7 @@ for i = 2:length(t)-3
 
 end
 error12pressure = sqrt(mean(err12));
+emax12pressure = sqrt(max(err12));
 
 yilccaoutletflow = interp1q(lcca_outlet_12_flow(1:end,1),lcca_outlet_12_flow(1:end,2),xi);
 for i = 2:length(t)-2
@@ -285,6 +296,7 @@ for i = 2:length(t)-2
 
 end
 error12flow = sqrt(abs(mean(err12)));
+emax12flow = sqrt(max(err12));
 
 yibcoutletpressure = interp1q(bc_outlet_11_Pressure(1:end,1),bc_outlet_11_Pressure(1:end,2),xi);
 for i = 2:length(t)-3
@@ -293,6 +305,7 @@ for i = 2:length(t)-3
 
 end
 error11pressure = sqrt(mean(err11));
+emax11pressure = sqrt(max(err11));
 
 yibcoutletflow = interp1q(bc_outlet_11_flow(1:end,1),bc_outlet_11_flow(1:end,2),xi);
 for i = 3:length(t)-3
@@ -301,6 +314,7 @@ for i = 3:length(t)-3
 
 end
 error11flow = sqrt(mean(err11));
+emax11flow = sqrt(max(err11));
 
 yiinletpressure = interp1q(Inlet_Pressure(1:end,1),Inlet_Pressure(1:end,2),xi);
 for i = 2:length(t)-3
@@ -309,30 +323,7 @@ for i = 2:length(t)-3
 
 end
 error1pressure = sqrt(mean(err1));
-
-%MAX
-emax19flow = max(abs((q19(2:end-1)-yiliacoutletflow(2:end-1)*10^-6)/max(yiliacoutletflow(2:end-1)*10^-6)));
-emax19pressure = max(abs((p19-yiliacoutletpressure)./yiliacoutletpressure));
-
-emax18flow = max(abs((q18(2:end-1)-yiimmaoutletflow(2:end-1)*10^-6)/max(yiimmaoutletflow(2:end-1)*10^-6)));
-emax18pressure = max(abs((p18-yiimmaoutletpressure)./yiimmaoutletpressure));
-
-emax16flow = max(abs((q16(2:end-1)-yirenaoutletflow(2:end-1)*10^-6)/max(yirenaoutletflow(2:end-1)*10^-6)));
-emax16pressure = max(abs((p16-yirenaoutletpressure)./yirenaoutletpressure));
-
-emax15flow = max(abs((q15(2:end-1)-yismaoutletflow(2:end-1)*10^-6)/max(yismaoutletflow(2:end-1)*10^-6)));
-emax15pressure = max(abs((p15-yismaoutletpressure)./yismaoutletpressure));
-
-emax13flow = max(abs((q13(2:end-1)-yilsuboutletflow(2:end-1)*10^-6)/max(yilsuboutletflow(2:end-1)*10^-6)));
-emax13pressure = max(abs((p13-yilsuboutletpressure)./yilsuboutletpressure));
-
-emax12flow = max(abs((q12(2:end-1)-yilccaoutletflow(2:end-1)*10^-6)/max(yilccaoutletflow(2:end-1)*10^-6)));
-emax12pressure = max(abs((p12-yilccaoutletpressure)./yilccaoutletpressure));
-
-emax11flow = max(abs((q11(2:end-1)-yibcoutletflow(2:end-1)*10^-6)/max(yibcoutletflow(2:end-1)*10^-6)));
-emax11pressure = max(abs((p11-yibcoutletpressure)./yibcoutletpressure));
-
-emax1pressure = max(abs((p1-yiinletpressure)./yiinletpressure));
+emax1pressure = sqrt(max(err1));
 
 %SYS
 esys19flow = (max(q19(2:end-1)-max(yiliacoutletflow(2:end-1))*10^-6))/max(yiliacoutletflow(2:end-1)*10^-6);
