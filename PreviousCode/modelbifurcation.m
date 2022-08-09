@@ -9,52 +9,12 @@ a = 0.001;
 a2 = 0.001;
 
 %Parent vessel (1)
-E1 = 500*10^3;                                       %Table 3 (Flores 2016)
-rho1 = 1060;                                         %Table 3 (Flores 2016)
-v1 = 0.5;                                            %Table 3 (Flores 2016)
-h1 = 1.032*10^-3;                                    %Table 3 (Flores 2016)
-R1 = 0.89*10^-2;
-L1 = 8.6*10^-2;
-c1 = ((E1*h1)/((1-v1^2)*rho1*2*R1))^0.5;
-Y1 = (pi*R1^2)/(rho1*c1);
-
-%Daughter vessels (2) and (3)
-E2 = 700*10^3;                                       %Table 3 (Flores 2016)
-rho2 = 1060;                                         %Table 3 (Flores 2016)
-v2 = 0.5;                                            %Table 3 (Flores 2016)
-h2 = 0.72*10^-3;                                     %Table 3 (Flores 2016)
-R2 = 0.6125*10^-2;
-L2 = 8.5*10^-2;
-c2 = ((E2*h2)/((1-v2^2)*rho2*2*R2))^0.5;
-Y2 = (pi*R2^2)/(rho2*c2);
-Y3 = Y2;
-
-
-E3 = 700*10^3;                                       %Table 3 (Flores 2016)
-rho3 = 1060;                                         %Table 3 (Flores 2016)
-v3 = 0.5;                                            %Table 3 (Flores 2016)
-h3 = 0.72*10^-3;                                     %Table 3 (Flores 2016)
-R3 = 0.6125*10^-2;
-L3 = 8.5*10^-2;
-
-%Impedence calculation data
-RW1 = 6.8123*10^7;
-RW2 = 3.1013*10^9;
-Cwk = 3.6664*10^-10;
-
-RW13 = 6.8123*10^7;
-RW23 = 3.1013*10^9;
-Cwk3 = 3.6664*10^-10;
-
-% Optimised Values
-
 % E1 = 500*10^3;                                       %Table 3 (Flores 2016)
 % rho1 = 1060;                                         %Table 3 (Flores 2016)
 % v1 = 0.5;                                            %Table 3 (Flores 2016)
-% be1 = 0.00107412679934682;
-% h1 = 0.75/(E1*be1);                                    %Table 3 (Flores 2016)
-% R1 = 0.00895572408393668;
-% L1 = 0.105806045268162;
+% h1 = 1.032*10^-3;                                    %Table 3 (Flores 2016)
+% R1 = 0.89*10^-2;
+% L1 = 8.6*10^-2;
 % c1 = ((E1*h1)/((1-v1^2)*rho1*2*R1))^0.5;
 % Y1 = (pi*R1^2)/(rho1*c1);
 % 
@@ -62,30 +22,70 @@ Cwk3 = 3.6664*10^-10;
 % E2 = 700*10^3;                                       %Table 3 (Flores 2016)
 % rho2 = 1060;                                         %Table 3 (Flores 2016)
 % v2 = 0.5;                                            %Table 3 (Flores 2016)
-% be2 = 0.00104673896585901;
-% h2 = 0.75/(E2*be2);                                     %Table 3 (Flores 2016)
-% R2 = 0.00592762150465316;
-% L2 = 0.133512189773607;
+% h2 = 0.72*10^-3;                                     %Table 3 (Flores 2016)
+% R2 = 0.6125*10^-2;
+% L2 = 8.5*10^-2;
 % c2 = ((E2*h2)/((1-v2^2)*rho2*2*R2))^0.5;
 % Y2 = (pi*R2^2)/(rho2*c2);
 % Y3 = Y2;
 % 
 % 
-% E3 = E2;                                       %Table 3 (Flores 2016)
+% E3 = 700*10^3;                                       %Table 3 (Flores 2016)
 % rho3 = 1060;                                         %Table 3 (Flores 2016)
 % v3 = 0.5;                                            %Table 3 (Flores 2016)
-% h3 = h2;                                     %Table 3 (Flores 2016)
-% R3 = R2;
-% L3 = L2;
+% h3 = 0.72*10^-3;                                     %Table 3 (Flores 2016)
+% R3 = 0.6125*10^-2;
+% L3 = 8.5*10^-2;
 % 
 % %Impedence calculation data
-% RW1 = 86210920.7522733;
-% RW2 = 3077962905.34146;
-% Cwk = 3.54153142218048e-10;
+% RW1 = 6.8123*10^7;
+% RW2 = 3.1013*10^9;
+% Cwk = 3.6664*10^-10;
 % 
-% RW13 = RW1;
-% RW23 = RW2;
-% Cwk3 = Cwk;
+% RW13 = 6.8123*10^7;
+% RW23 = 3.1013*10^9;
+% Cwk3 = 3.6664*10^-10;
+
+% Optimised Values
+
+E1 = 500*10^3;                                       %Table 3 (Flores 2016)
+rho1 = 1060;                                         %Table 3 (Flores 2016)
+v1 = 0.5;                                            %Table 3 (Flores 2016)
+be1 = 0.00107412679934682;
+h1 = 0.75/(E1*be1);                                    %Table 3 (Flores 2016)
+R1 = 0.00895572408393668;
+L1 = 0.105806045268162;
+c1 = ((E1*h1)/((1-v1^2)*rho1*2*R1))^0.5;
+Y1 = (pi*R1^2)/(rho1*c1);
+
+%Daughter vessels (2) and (3)
+E2 = 700*10^3;                                       %Table 3 (Flores 2016)
+rho2 = 1060;                                         %Table 3 (Flores 2016)
+v2 = 0.5;                                            %Table 3 (Flores 2016)
+be2 = 0.00104673896585901;
+h2 = 0.75/(E2*be2);                                     %Table 3 (Flores 2016)
+R2 = 0.00592762150465316;
+L2 = 0.133512189773607;
+c2 = ((E2*h2)/((1-v2^2)*rho2*2*R2))^0.5;
+Y2 = (pi*R2^2)/(rho2*c2);
+Y3 = Y2;
+
+
+E3 = E2;                                       %Table 3 (Flores 2016)
+rho3 = 1060;                                         %Table 3 (Flores 2016)
+v3 = 0.5;                                            %Table 3 (Flores 2016)
+h3 = h2;                                     %Table 3 (Flores 2016)
+R3 = R2;
+L3 = L2;
+
+%Impedence calculation data
+RW1 = 86210920.7522733;
+RW2 = 3077962905.34146;
+Cwk = 3.54153142218048e-10;
+
+RW13 = RW1;
+RW23 = RW2;
+Cwk3 = Cwk;
 
 %% Importing the data from the Flores plots
 load('grabit/ao_mid_flow.mat')
@@ -377,6 +377,9 @@ ediasilmidpressure = (min(p2mid(2:end-1)-min(yiilmidpressure(2:end-1))))/max(yii
 ediasoutpressure = (min(p2ilout(2:end-1)-min(yiiloutpressure(2:end-1))))/max(yiiloutpressure(2:end-1));
 
 %% Ploting the results
+
+currmodel = '1-D (Optimised)';
+
 ld = 2.5;
 colour1 = 'b';
 colour2 = 'r';
@@ -404,38 +407,39 @@ ax.Layer = 'top';
 ax.XAxis.FontSize = fontxt2;
 ax.YAxis.FontSize = fontxt2;
 
-% figure
-% plot(t,q1mid*10^6,colour1,'LineWidth',ld)
-% hold on
-% plot(ao_mid_flow(1:end,1),ao_mid_flow(1:end,2),colour2,'LineWidth',ld)
-% grid on
-% t2 = legend('in-house','3-D');
-% t2.FontSize = fontxt2;
-% t2 = title('Volume flow rate - middle of the aorta');
-% t2.FontSize = fontxt2;
-% t2 = xlabel('time(s)');
-% t2.FontSize = fontxt2;
-% t2 = ylabel('Q(ml/s)');
-% t2.FontSize = fontxt2;
-% txt = ['avg%: ',num2str(round(erroraomidflow*100,2))];
-% t1 = text(0.7,60,txt);
-% t1.FontSize = fontxt;
-% txt = ['max%: ',num2str(round(emaxaomidflow*100,2))];
-% t1 = text(0.7,47,txt);
-% t1.FontSize = fontxt;
-% txt = ['sys%: ',num2str(round(esysaomidflow*100,2))];
-% t1 = text(0.7,34,txt);
-% t1.FontSize = fontxt;
-% txt = ['dias%: ',num2str(round(ediasaomidflow*100,2))];
-% t1 = text(0.7,21,txt);
-% t1.FontSize = fontxt;
-% axis([0 1.2,-40 100]);
-% ax = gca;
-% ax.GridLineStyle = ':';
-% ax.GridAlpha = 0.5;
-% ax.Layer = 'top';
-% ax.XAxis.FontSize = fontxt2;
-% ax.YAxis.FontSize = fontxt2;
+figure
+plot(t,q1mid*10^6,colour1,'LineWidth',ld)
+hold on
+plot(ao_mid_flow(1:end,1),ao_mid_flow(1:end,2),colour2,'LineWidth',ld)
+grid on
+t2 = legend(currmodel,'3-D');
+t2.FontSize = fontxt2;
+t2 = title('Volume flow rate - middle of the parent');
+t2.FontSize = fontxt2;
+t2 = xlabel('time(s)');
+t2.FontSize = fontxt2;
+t2 = ylabel('Q(ml/s)');
+t2.FontSize = fontxt2;
+txt = ['avg%: ',num2str(round(erroraomidflow*100,2))];
+t1 = text(0.7,60,txt);
+t1.FontSize = fontxt;
+txt = ['max%: ',num2str(round(emaxaomidflow*100,2))];
+t1 = text(0.7,47,txt);
+t1.FontSize = fontxt;
+txt = ['sys%: ',num2str(round(esysaomidflow*100,2))];
+t1 = text(0.7,34,txt);
+t1.FontSize = fontxt;
+txt = ['dias%: ',num2str(round(ediasaomidflow*100,2))];
+t1 = text(0.7,21,txt);
+t1.FontSize = fontxt;
+axis([0 1.2,-40 100]);
+ax = gca;
+ax.LineWidth = 2.5;
+ax.GridLineStyle = ':';
+ax.GridAlpha = 0.2;
+ax.Layer = 'top';
+ax.XAxis.FontSize = fontxt2;
+ax.YAxis.FontSize = fontxt2;
 
 figure
 plot(t,q1junc*10^6,colour1,'LineWidth',ld)
@@ -457,7 +461,7 @@ t1.FontSize = fontxt;
 txt = ['dias%: ',num2str(round(ediasjuncflow*100,2))];
 t1 = text(0.7,21,txt);
 t1.FontSize = fontxt;
-t2 = legend('1-D (Present)','3-D');
+t2 = legend(currmodel,'3-D');
 t2.FontSize = fontxt2;
 t2 = title('Volume flow rate - junction');
 t2.FontSize = fontxt2;
@@ -467,44 +471,46 @@ t2 = ylabel('Q(ml/s)');
 t2.FontSize = fontxt2;
 axis([0 1.2,-40 100]);
 ax = gca;
+ax.LineWidth = 2.5;
 ax.GridLineStyle = ':';
 ax.GridAlpha = 0.2;
 ax.Layer = 'top';
 ax.XAxis.FontSize = fontxt2;
 ax.YAxis.FontSize = fontxt2;
 
-% figure
-% plot(t,q2ilmid*10^6,colour1,'LineWidth',ld)
-% hold on
-% plot(mid_il_flow(1:end,1),mid_il_flow(1:end,2),colour2,'LineWidth',ld)
-% grid on
-% txt = ['avg%: ',num2str(round(errorilmidflow*100,2))];
-% t1 = text(0.7,30,txt);
-% t1.FontSize = fontxt;
-% txt = ['max%: ',num2str(round(emaxilmidflow*100,2))];
-% t1 = text(0.7,23.5,txt);
-% t1.FontSize = fontxt;
-% txt = ['sys%: ',num2str(round(esysilmidflow*100,2))];
-% t1 = text(0.7,17,txt);
-% t1.FontSize = fontxt;
-% txt = ['dias%: ',num2str(round(ediasilmidflow*100,2))];
-% t1 = text(0.7,10.5,txt);
-% t1.FontSize = fontxt;
-% t2 = legend('in-house','3-D');
-% t2.FontSize = fontxt2;
-% t2 = title('Volume flow rate - middle of the iliac');
-% t2.FontSize = fontxt2;
-% t2 = xlabel('time(s)');
-% t2.FontSize = fontxt2;
-% t2 = ylabel('Q(ml/s)');
-% t2.FontSize = fontxt2;
-% axis([0 1.2,-20 50]);
-% ax = gca;
-% ax.GridLineStyle = ':';
-% ax.GridAlpha = 0.5;
-% ax.Layer = 'top';
-% ax.XAxis.FontSize = fontxt2;
-% ax.YAxis.FontSize = fontxt2;
+figure
+plot(t,q2ilmid*10^6,colour1,'LineWidth',ld)
+hold on
+plot(mid_il_flow(1:end,1),mid_il_flow(1:end,2),colour2,'LineWidth',ld)
+grid on
+txt = ['avg%: ',num2str(round(errorilmidflow*100,2))];
+t1 = text(0.7,30,txt);
+t1.FontSize = fontxt;
+txt = ['max%: ',num2str(round(emaxilmidflow*100,2))];
+t1 = text(0.7,23.5,txt);
+t1.FontSize = fontxt;
+txt = ['sys%: ',num2str(round(esysilmidflow*100,2))];
+t1 = text(0.7,17,txt);
+t1.FontSize = fontxt;
+txt = ['dias%: ',num2str(round(ediasilmidflow*100,2))];
+t1 = text(0.7,10.5,txt);
+t1.FontSize = fontxt;
+t2 = legend(currmodel,'3-D');
+t2.FontSize = fontxt2;
+t2 = title('Volume flow rate - middle of the daughter');
+t2.FontSize = fontxt2;
+t2 = xlabel('time(s)');
+t2.FontSize = fontxt2;
+t2 = ylabel('Q(ml/s)');
+t2.FontSize = fontxt2;
+axis([0 1.2,-20 50]);
+ax = gca;
+ax.LineWidth = 2.5;
+ax.GridLineStyle = ':';
+ax.GridAlpha = 0.2;
+ax.Layer = 'top';
+ax.XAxis.FontSize = fontxt2;
+ax.YAxis.FontSize = fontxt2;
 
 figure
 plot(t,q2ilout*10^6,colour1,'LineWidth',ld)
@@ -526,9 +532,9 @@ t1.FontSize = fontxt;
 txt = ['dias%: ',num2str(round(ediasoutflow*100,2))];
 t1 = text(0.7,10.5,txt);
 t1.FontSize = fontxt;
-t2 = legend('1-D (Present)','3-D');
+t2 = legend(currmodel,'3-D');
 t2.FontSize = fontxt2;
-t2 = title('Volume flow rate - outlet of the iliac');
+t2 = title('Volume flow rate - outlet of the daughter');
 t2.FontSize = fontxt2;
 t2 = xlabel('time(s)');
 t2.FontSize = fontxt2;
@@ -550,9 +556,9 @@ plot(outlet_il_Pressure(1:end,1),outlet_il_Pressure(1:end,2)*10^-3,colour2,'Line
 box on
 ax = gca;
 ax.LineWidth = 2.5;
-t2 = legend('1-D (Present)','3-D');
+t2 = legend(currmodel,'3-D');
 t2.FontSize = fontxt2;
-t2 = title('Pressure - outlet of the iliac');
+t2 = title('Pressure - outlet of the daughter');
 t2.FontSize = fontxt2;
 t2 = xlabel('time(s)');
 t2.FontSize = fontxt2;
@@ -579,38 +585,39 @@ ax.Layer = 'top';
 ax.XAxis.FontSize = fontxt2;
 ax.YAxis.FontSize = fontxt2;
 
-% figure
-% plot(t,p2mid*10^-3,colour1,'LineWidth',ld)
-% hold on
-% plot(mid_il_Pressure(1:end,1),mid_il_Pressure(1:end,2)*10^-3,colour2,'LineWidth',ld);
-% txt = ['avg%: ',num2str(round(errorilmidpressure*100,2))];
-% t1 = text(0.7,18,txt);
-% t1.FontSize = fontxt;
-% txt = ['max%: ',num2str(round(emaxilmidpressure*100,2))];
-% t1 = text(0.7,16.8,txt);
-% t1.FontSize = fontxt;
-% txt = ['sys%: ',num2str(round(esysilmidpressure*100,2))];
-% t1 = text(0.7,15.6,txt);
-% t1.FontSize = fontxt;
-% txt = ['dias%: ',num2str(round(ediasilmidpressure*100,2))];
-% t1 = text(0.7,14.4,txt);
-% t1.FontSize = fontxt;
-% t2 = legend('in-house','3-D');
-% t2.FontSize = fontxt2;
-% t2 = title('Pressure - middle of the iliac');
-% t2.FontSize = fontxt2;
-% t2 = xlabel('time(s)');
-% t2.FontSize = fontxt2;
-% t2 = ylabel('P(kPa)');
-% t2.FontSize = fontxt2;
-% grid on
-% axis([0 1.2,8.5 22]);
-% ax = gca;
-% ax.GridLineStyle = ':';
-% ax.GridAlpha = 0.5;
-% ax.Layer = 'top';
-% ax.XAxis.FontSize = fontxt2;
-% ax.YAxis.FontSize = fontxt2;
+figure
+plot(t,p2mid*10^-3,colour1,'LineWidth',ld)
+hold on
+plot(mid_il_Pressure(1:end,1),mid_il_Pressure(1:end,2)*10^-3,colour2,'LineWidth',ld);
+txt = ['avg%: ',num2str(round(errorilmidpressure*100,2))];
+t1 = text(0.7,18,txt);
+t1.FontSize = fontxt;
+txt = ['max%: ',num2str(round(emaxilmidpressure*100,2))];
+t1 = text(0.7,16.8,txt);
+t1.FontSize = fontxt;
+txt = ['sys%: ',num2str(round(esysilmidpressure*100,2))];
+t1 = text(0.7,15.6,txt);
+t1.FontSize = fontxt;
+txt = ['dias%: ',num2str(round(ediasilmidpressure*100,2))];
+t1 = text(0.7,14.4,txt);
+t1.FontSize = fontxt;
+t2 = legend(currmodel,'3-D');
+t2.FontSize = fontxt2;
+t2 = title('Pressure - middle of the daughter');
+t2.FontSize = fontxt2;
+t2 = xlabel('time(s)');
+t2.FontSize = fontxt2;
+t2 = ylabel('P(kPa)');
+t2.FontSize = fontxt2;
+grid on
+axis([0 1.2,8.5 22]);
+ax = gca;
+ax.GridLineStyle = ':';
+ax.GridAlpha = 0.2;
+ax.LineWidth = 2.5;
+ax.Layer = 'top';
+ax.XAxis.FontSize = fontxt2;
+ax.YAxis.FontSize = fontxt2;
 
 
 figure
@@ -632,7 +639,7 @@ t1.FontSize = fontxt;
 txt = ['dias%: ',num2str(round(ediasjuncpressure*100,2))];
 t1 = text(0.7,14.4,txt);
 t1.FontSize = fontxt;
-t2 = legend('1-D (Present)','3-D');
+t2 = legend(currmodel,'3-D');
 t2.FontSize = fontxt2;
 t2 = title('Pressure - junction');
 t2.FontSize = fontxt2;
@@ -649,38 +656,39 @@ ax.Layer = 'top';
 ax.XAxis.FontSize = fontxt2;
 ax.YAxis.FontSize = fontxt2;
 
-% figure
-% plot(t,p1mid*10^-3,colour1,'LineWidth',ld)
-% hold on
-% plot(mid_ao_Pressure(1:end,1),mid_ao_Pressure(1:end,2)*10^-3,colour2,'LineWidth',ld);
-% txt = ['avg%: ',num2str(round(erroraomidpressure*100,2))];
-% t1 = text(0.7,18,txt);
-% t1.FontSize = fontxt;
-% txt = ['max%: ',num2str(round(emaxaomidpressure*100,2))];
-% t1 = text(0.7,16.8,txt);
-% t1.FontSize = fontxt;
-% txt = ['sys%: ',num2str(round(esysaomidpressure*100,2))];
-% t1 = text(0.7,15.6,txt);
-% t1.FontSize = fontxt;
-% txt = ['dias%: ',num2str(round(ediasaomidpressure*100,2))];
-% t1 = text(0.7,14.4,txt);
-% t1.FontSize = fontxt;
-% t2 = legend('in-house','3-D');
-% t2.FontSize = fontxt2;
-% t2 = title('Pressure - middle of the aorta');
-% t2.FontSize = fontxt2;
-% t2 = xlabel('time(s)');
-% t2.FontSize = fontxt2;
-% t2 = ylabel('P(kPa)');
-% t2.FontSize = fontxt2;
-% grid on
-% axis([0 1.2,8.5 22]);
-% ax = gca;
-% ax.GridLineStyle = ':';
-% ax.GridAlpha = 0.5;
-% ax.Layer = 'top';
-% ax.XAxis.FontSize = fontxt2;
-% ax.YAxis.FontSize = fontxt2;
+figure
+plot(t,p1mid*10^-3,colour1,'LineWidth',ld)
+hold on
+plot(mid_ao_Pressure(1:end,1),mid_ao_Pressure(1:end,2)*10^-3,colour2,'LineWidth',ld);
+txt = ['avg%: ',num2str(round(erroraomidpressure*100,2))];
+t1 = text(0.7,18,txt);
+t1.FontSize = fontxt;
+txt = ['max%: ',num2str(round(emaxaomidpressure*100,2))];
+t1 = text(0.7,16.8,txt);
+t1.FontSize = fontxt;
+txt = ['sys%: ',num2str(round(esysaomidpressure*100,2))];
+t1 = text(0.7,15.6,txt);
+t1.FontSize = fontxt;
+txt = ['dias%: ',num2str(round(ediasaomidpressure*100,2))];
+t1 = text(0.7,14.4,txt);
+t1.FontSize = fontxt;
+t2 = legend(currmodel,'3-D');
+t2.FontSize = fontxt2;
+t2 = title('Pressure - middle of the parent');
+t2.FontSize = fontxt2;
+t2 = xlabel('time(s)');
+t2.FontSize = fontxt2;
+t2 = ylabel('P(kPa)');
+t2.FontSize = fontxt2;
+grid on
+axis([0 1.2,8.5 22]);
+ax = gca;
+ax.GridLineStyle = ':';
+ax.LineWidth = 2.5;
+ax.GridAlpha = 0.2;
+ax.Layer = 'top';
+ax.XAxis.FontSize = fontxt2;
+ax.YAxis.FontSize = fontxt2;
 
 figure
 plot(t,p1in*10^-3,colour1,'LineWidth',ld)
@@ -701,7 +709,7 @@ t1.FontSize = fontxt;
 txt = ['dias%: ',num2str(round(ediasinletpressure*100,2))];
 t1 = text(0.7,14.4,txt);
 t1.FontSize = fontxt;
-t2 = legend('1-D (Present)','3-D');
+t2 = legend(currmodel,'3-D');
 t2.FontSize = fontxt2;
 t2 = title('Pressure - inlet');
 t2.FontSize = fontxt2;

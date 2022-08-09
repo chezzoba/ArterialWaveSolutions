@@ -4,40 +4,48 @@ clear;
 addpath('../VesselModels/');
 
 plotting = true;
+past = false;
 
 tic
-%% Flores et all (2016) and Nan Xiao et al (2013), Table 5 and Table IV, Parameters of the full-aorta model
+
+rho = 1060; 
 L = [7.0357,0.8,0.9,6.4737,15.2,1.8,0.7,0.7,4.3,4.3,3.4,3.4,3.4,3.2,6,3.2,3.2,5,8.5,8.5]*10^-2;
 Rin = [15.2,13.9,13.7,13.5,12.3,9.9,9.7,9.62,9.55,9.07,6.35,3.6,4.8,4.45,3.75,2.8,2.8,2,6,6]*10^-3;
 Rout = [Rin(2)*10^3,Rin(3)*10^3,Rin(4)*10^3,Rin(5)*10^3,Rin(6)*10^3,Rin(7)*10^3,Rin(8)*10^3,Rin(9)*10^3,Rin(10)*10^3,8.6,Rin(11)*10^3,Rin(12)*10^3,Rin(13)*10^3,Rin(14)*10^3,Rin(15)*10^3,Rin(16)*10^3,Rin(17)*10^3,Rin(18)*10^3,Rin(19)*10^3,Rin(20)*10^3]*10^-3;
-h = 0.1*Rin; %h was chosen to be 10% of Rin
 R=Rin;
-E = [372.2,384.2,387.6,400,437.8,471.8,475.9,478.1,486.5,502,612,860.4,724,757.6,839.6,1000.4,1000.4,1224.2,633.3,633.3]*10^3;
-RW1 = [0,0,0,0,0,0,0,0,0,0,5.1918,19.1515,9.882,11.7617,17.4352,34.1378,34.1378,74.0167,5.9149,5.9149]*(10^7);
-RW2 = [0,0,0,0,0,0,0,0,0,0,10.6080,52.2129,13.0183,7.5726,5.5097,5.3949,5.3949,46.2252,10.1737,10.1737]*(10^8);
-CWK = [0,0,0,0,0,0,0,0,0,0,8.6974,1.767,7.0871,12.1836,16.7453,17.1017,17.1017,1.9959,9.0686,9.0686]*(10^-10);
-v = 0.5;
-rho = 1060; 
 a(1:10) = atan((Rin(1:10)-Rout(1:10))./L(1:10));
 a = [a(1:10),0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001,0.001];
-be = (1 - v^2) ./ (E .* h);
 
-% load('../Data/fullaortapredictedvalues.mat');
-% 
-% be=xpred2t(1:20);
-% 
-% [RW1(14), RW2(14), CWK(14)] = deal(xpred2t(21),xpred2t(22),xpred2t(23));
-% 
-% [RW1(11), RW2(11), CWK(11)] = deal(xpred2t(24),xpred2t(25),xpred2t(26));
-% [RW1(12), RW2(12), CWK(12)] = deal(xpred2t(27),xpred2t(28),xpred2t(29));
-% [RW1(13), RW2(13), CWK(13)] = deal(xpred2t(30),xpred2t(31),xpred2t(32));
-% [RW1(15), RW2(15), CWK(15)] = deal(xpred2t(33),xpred2t(34),xpred2t(35));
-% [RW1(16), RW2(16), CWK(16)] = deal(xpred2t(36),xpred2t(37),xpred2t(38));
-% [RW1(18), RW2(18), CWK(18)] = deal(xpred2t(39),xpred2t(40),xpred2t(41));
-% [RW1(19), RW2(19), CWK(19)] = deal(xpred2t(42),xpred2t(43),xpred2t(44));
-% 
-% [RW1(17), RW2(17), CWK(17)] = deal(RW1(16), RW2(16), CWK(16));
-% [RW1(20), RW2(20), CWK(20)] = deal(RW1(19), RW2(19), CWK(19));
+if (past)
+    currmodel = '1-D (Known)';
+    %% Flores et all (2016) and Nan Xiao et al (2013), Table 5 and Table IV, Parameters of the full-aorta model
+    h = 0.1*Rin; %h was chosen to be 10% of Rin
+    E = [372.2,384.2,387.6,400,437.8,471.8,475.9,478.1,486.5,502,612,860.4,724,757.6,839.6,1000.4,1000.4,1224.2,633.3,633.3]*10^3;
+    RW1 = [0,0,0,0,0,0,0,0,0,0,5.1918,19.1515,9.882,11.7617,17.4352,34.1378,34.1378,74.0167,5.9149,5.9149]*(10^7);
+    RW2 = [0,0,0,0,0,0,0,0,0,0,10.6080,52.2129,13.0183,7.5726,5.5097,5.3949,5.3949,46.2252,10.1737,10.1737]*(10^8);
+    CWK = [0,0,0,0,0,0,0,0,0,0,8.6974,1.767,7.0871,12.1836,16.7453,17.1017,17.1017,1.9959,9.0686,9.0686]*(10^-10);
+    v = 0.5;
+    be = (1 - v^2) ./ (E .* h);
+
+else
+    currmodel = '1-D (Optimised)';
+    load('../Data/fullaortapredictedvalues.mat');
+    
+    be=xpred2t(1:20);
+    
+    [RW1(14), RW2(14), CWK(14)] = deal(xpred2t(21),xpred2t(22),xpred2t(23));
+    
+    [RW1(11), RW2(11), CWK(11)] = deal(xpred2t(24),xpred2t(25),xpred2t(26));
+    [RW1(12), RW2(12), CWK(12)] = deal(xpred2t(27),xpred2t(28),xpred2t(29));
+    [RW1(13), RW2(13), CWK(13)] = deal(xpred2t(30),xpred2t(31),xpred2t(32));
+    [RW1(15), RW2(15), CWK(15)] = deal(xpred2t(33),xpred2t(34),xpred2t(35));
+    [RW1(16), RW2(16), CWK(16)] = deal(xpred2t(36),xpred2t(37),xpred2t(38));
+    [RW1(18), RW2(18), CWK(18)] = deal(xpred2t(39),xpred2t(40),xpred2t(41));
+    [RW1(19), RW2(19), CWK(19)] = deal(xpred2t(42),xpred2t(43),xpred2t(44));
+    
+    [RW1(17), RW2(17), CWK(17)] = deal(RW1(16), RW2(16), CWK(16));
+    [RW1(20), RW2(20), CWK(20)] = deal(RW1(19), RW2(19), CWK(19));
+end
 
 %% Importing the data from the Flores plots
 load('../PreviousCode/automeris/aorta/BC.csv')
@@ -56,8 +64,6 @@ load('../PreviousCode/automeris/aorta/imma_outlet_18_flow.csv')
 load('../PreviousCode/automeris/aorta/imma_outlet_18_Pressure.csv')
 load('../PreviousCode/automeris/aorta/riliac_outlet_19_flow.csv')
 load('../PreviousCode/automeris/aorta/riliac_outlet_19_Pressure.csv')
-
-
 
 bi10_19_20 = Bifurcation([R(10), R(19), R(20)], [L(10), L(19), L(20)],...
     [be(10), be(19), be(20)], rho, [a(10), a(19), a(20)],...
@@ -411,7 +417,7 @@ if (plotting)
     box on
     ax = gca;
     ax.LineWidth = 2.5;
-    t2 = legend('1-D (Present)','3-D');
+    t2 = legend(currmodel,'3-D');
     t2.FontSize = fontxt2;
     t2 = title('Pressure - inlet (1)');
     t2.FontSize = fontxt2;
@@ -447,7 +453,7 @@ if (plotting)
     box on
     ax = gca;
     ax.LineWidth = 2.5;
-    t2 = legend('1-D (Present)','3-D');
+    t2 = legend(currmodel,'3-D');
     t2.FontSize = fontxt2;
     t2 = title('Volume flow rate - bc outlet (11)');
     t2.FontSize = fontxt2;
@@ -483,7 +489,7 @@ if (plotting)
     box on
     ax = gca;
     ax.LineWidth = 2.5;
-    t2 = legend('1-D (Present)','3-D');
+    t2 = legend(currmodel,'3-D');
     t2.FontSize = fontxt2;
     t2 = title('Pressure -  bc outlet (11)');
     t2.FontSize = fontxt2;
@@ -519,7 +525,7 @@ if (plotting)
     box on
     ax = gca;
     ax.LineWidth = 2.5;
-    t2 = legend('1-D (Present)','3-D');
+    t2 = legend(currmodel,'3-D');
     t2.FontSize = fontxt2;
     t2 = title('Volume flow rate - lcca outlet (12)');
     t2.FontSize = fontxt2;
@@ -555,7 +561,7 @@ if (plotting)
     box on
     ax = gca;
     ax.LineWidth = 2.5;
-    t2 = legend('1-D (Present)','3-D');
+    t2 = legend(currmodel,'3-D');
     t2.FontSize = fontxt2;
     t2 = title('Pressure - lcca outlet (12)');
     t2.FontSize = fontxt2;
@@ -591,7 +597,7 @@ if (plotting)
     box on
     ax = gca;
     ax.LineWidth = 2.5;
-    t2 = legend('1-D (Present)','3-D');
+    t2 = legend(currmodel,'3-D');
     t2.FontSize = fontxt2;
     t2 = title('Volume flow rate - lsub outlet (13)');
     t2.FontSize = fontxt2;
@@ -627,7 +633,7 @@ if (plotting)
     box on
     ax = gca;
     ax.LineWidth = 2.5;
-    t2 = legend('1-D (Present)','3-D');
+    t2 = legend(currmodel,'3-D');
     t2.FontSize = fontxt2;
     t2 = title('Pressure - lsub outlet (13)');
     t2.FontSize = fontxt2;
@@ -663,7 +669,7 @@ if (plotting)
     box on
     ax = gca;
     ax.LineWidth = 2.5;
-    t2 = legend('1-D (Present)','3-D');
+    t2 = legend(currmodel,'3-D');
     t2.FontSize = fontxt2;
     t2 = title('Volume flow rate - sma outlet (15)');t2.FontSize = 13;
     t2.FontSize = fontxt2;
@@ -699,7 +705,7 @@ if (plotting)
     box on
     ax = gca;
     ax.LineWidth = 2.5;
-    t2 = legend('1-D (Present)','3-D');
+    t2 = legend(currmodel,'3-D');
     t2.FontSize = fontxt2;
     t2 = title('Pressure - sma outlet (15)');
     t2.FontSize = fontxt2;
@@ -735,7 +741,7 @@ if (plotting)
     box on
     ax = gca;
     ax.LineWidth = 2.5;
-    t2 = legend('1-D (Present)','3-D');
+    t2 = legend(currmodel,'3-D');
     t2.FontSize = fontxt2;
     t2 = title('Volume flow rate - r ren (16)');
     t2.FontSize = fontxt2;
@@ -771,7 +777,7 @@ if (plotting)
     box on
     ax = gca;
     ax.LineWidth = 2.5;
-    t2 = legend('1-D (Present)','3-D');
+    t2 = legend(currmodel,'3-D');
     t2.FontSize = fontxt2;
     t2 = title('Pressure - r ren (16)');
     t2.FontSize = fontxt2;
@@ -807,7 +813,7 @@ if (plotting)
     box on
     ax = gca;
     ax.LineWidth = 2.5;
-    t2 = legend('1-D (Present)','3-D');
+    t2 = legend(currmodel,'3-D');
     t2.FontSize = fontxt2;
     t2 = title('Volume flow rate - imma outlet (18)');
     t2.FontSize = fontxt2;
@@ -843,7 +849,7 @@ if (plotting)
     box on
     ax = gca;
     ax.LineWidth = 2.5;
-    t2 = legend('1-D (Present)','3-D');
+    t2 = legend(currmodel,'3-D');
     t2.FontSize = fontxt2;
     t2 = title('Pressure - imma outlet (18)');
     t2.FontSize = fontxt2;
@@ -879,7 +885,7 @@ if (plotting)
     box on
     ax = gca;
     ax.LineWidth = 2.5;
-    t2 = legend('1-D (Present)','3-D');
+    t2 = legend(currmodel,'3-D');
     t2.FontSize = fontxt2;
     t2 = title('Volume flow rate - r iliac outlet (19)');
     t2.FontSize = fontxt2;
@@ -915,7 +921,7 @@ if (plotting)
     box on
     ax = gca;
     ax.LineWidth = 2.5;
-    t2 = legend('1-D (Present)','3-D');
+    t2 = legend(currmodel,'3-D');
     t2.FontSize = fontxt2;
     t2 = title('Pressure - r iliac outlet (19)');
     t2.FontSize = fontxt2;
