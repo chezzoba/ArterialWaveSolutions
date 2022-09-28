@@ -1,8 +1,6 @@
 # ArterialWaveSolutions
 ### An Arterial Parameter Estimation Technique using a 1D Frequency Domain Model
 
-***
-
 This project computes a set of known parameters given 3D Numerical
 simulation measurements at the outlets of an arterial system. These parameters
 generally include the length and inlet radius of a vessel, as well as
