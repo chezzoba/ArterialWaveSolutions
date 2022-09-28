@@ -1,11 +1,17 @@
+%% Full Aorta Parameter Estimation
 addpath("Algorithms/", "Models/", "VesselModels/");
 clc;
 clear;
 
-aorta = FullAortaModel;
+aorta = FullAortaModel; % Define model
+
+% Function that defines impedence based on:
+% x - a vector consisting of the 3 Windkessel (WK) paramaters
+% om - a vector of angular frequencies
 zfun = @(x, om) (x(1) + x(2) - 1i .* om .* x(1) .* x(2) .* x(3))...
         ./ (1 - 1i .* om .* x(2) .* x(3)); % x = [RW1, RW2, Cwk]
 
+% Ranges of the 3 Windkessel parameters in the full aorta model
 scaler = MinMaxScaler([1e7, 1e8, 0], [1e9,6e9,2e-9]);
 
 params = [];
@@ -13,6 +19,8 @@ for i=1:20
     params = [params sprintf("be%d", i)];
 end
 
+% Optimisation procedure uses the 20 betas and the 3 WK parameters
+% at outlet 14
 params = [params ["RW114" "RW214" "CWK14"]];
 
 bescaler = MinMaxScaler([repmat(0.001, 1, 20) [1e7, 1e8, 0]],...
@@ -20,54 +28,65 @@ bescaler = MinMaxScaler([repmat(0.001, 1, 20) [1e7, 1e8, 0]],...
 
 problem = OptimisationProblem(aorta, params, bescaler);
 
+% Option to choose what values to fit the model to
+% 0 - fit to 1D model output using known inputs
+% 1 - fit to 3D numerical simulation data
 measurements = 1;
 
 switch (measurements)
     case 0
-        [sols, erract, solt, t, omegas] = aorta.model();
-        opt = NelderMeadSimplex;
+        [sols, erract, solt, t, omegas] = aorta.model(); % 1D solution results
+        opt = NelderMeadSimplex; % Optimisation algorithm and tuned parameters
         opt.lenX = 3;
         opt.x0Tol = 1e14;
         
+        % Determining the 3 WK parameters at outlet 11
         Z11 = sols(3, :) ./ sols(2, :);
         fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), omegas) - Z11).^2);
         WK11 = scaler.inv_transform(opt.fit(fun, 0))
         Perr11 = 100.*opt.relerr(WK11, [aorta.RW111, aorta.RW211, aorta.CWK11])
-
+        
+        % Determining the 3 WK parameters at outlet 12
         Z12 = sols(5, :) ./ sols(4, :);
         fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), omegas) - Z12).^2);
         WK12 = scaler.inv_transform(opt.fit(fun, 0))
         Perr12 = 100.*opt.relerr(WK12, [aorta.RW112, aorta.RW212, aorta.CWK12])
         
+        % Determining the 3 WK parameters at outlet 13
         Z13 = sols(7, :) ./ sols(6, :);
         fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), omegas) - Z13).^2);
         WK13 = scaler.inv_transform(opt.fit(fun, 0))
         Perr13 = 100.*opt.relerr(WK13, [aorta.RW113, aorta.RW213, aorta.CWK13])
-
+        
+        % Determining the 3 WK parameters at outlet 15
         Z15 = sols(9, :) ./ sols(8, :);
         fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), omegas) - Z15).^2);
         WK15 = scaler.inv_transform(opt.fit(fun, 0))
         Perr15 = 100.*opt.relerr(WK15, [aorta.RW115, aorta.RW215, aorta.CWK15])
 
+        % Determining the 3 WK parameters at outlet 16
         Z16 = sols(11, :) ./ sols(10, :);
         fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), omegas) - Z16).^2);
         WK16 = scaler.inv_transform(opt.fit(fun, 0))
         Perr16 = 100.*opt.relerr(WK16, [aorta.RW116, aorta.RW216, aorta.CWK16])
 
+        % Determining the 3 WK parameters at outlet 18
         Z18 = sols(13, :) ./ sols(12, :);
         fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), omegas) - Z18).^2);
         WK18 = scaler.inv_transform(opt.fit(fun, 0))
         Perr18 = 100.*opt.relerr(WK18, [aorta.RW118, aorta.RW218, aorta.CWK18])
 
+        % Determining the 3 WK parameters at outlet 19
         Z19 = sols(15, :) ./ sols(14, :);
         fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), omegas) - Z19).^2);
         WK19 = scaler.inv_transform(opt.fit(fun, 0))
         Perr19 = 100.*opt.relerr(WK19, [aorta.RW119, aorta.RW219, aorta.CWK19])
         
+        % Optimisation to find 20 betas and WK parameters @ outlet 14
         problem.optimiser.x0Tol = 20;
         xpred1 = problem.fitsolution(0);
         bePerr1 = 100 .* opt.relerr(problem.xact, bescaler.inv_transform(xpred1));
-        
+       
         problem.optimiser = NelderMeadSimplex;
         problem.optimiser.MaxFunEvals = 40000;
         problem.optimiser.MaxIter = 40000;
@@ -75,10 +94,11 @@ switch (measurements)
         [xpred2, errP, erract, nguesses] = problem.fitsolution(xpred1);
         bePerr2 = 100 .* opt.relerr(problem.xact, bescaler.inv_transform(xpred2))
     case 1
-          opt = ConOptimisation;
-          opt.lenX = 3;
-          opt.x0Tol = 1e30;
-
+        opt = ConOptimisation; % Optimisation algorithm and tuned parameters
+        opt.lenX = 3;
+        opt.x0Tol = 1e30;
+        
+        % Determining the 3 WK parameters at outlet 11
         [q11, p11] = deal(aorta.bc_outlet_11_flow, aorta.bc_outlet_11_Pressure);
         N = length(p11) - 1;
         q11 = interp1(q11(:, 1), q11(:, 2), p11(1:N, 1));
@@ -89,7 +109,8 @@ switch (measurements)
         fun = @(xp) mean(abs(zfun(scaler.inv_transform(xp), om) - Z11.').^2);
         WK11 = scaler.inv_transform(opt.fit(fun, 0));
         Perr11 = 100.*opt.relerr(WK11, [aorta.RW111, aorta.RW211, aorta.CWK11])
-
+        
+        % Determining the 3 WK parameters at outlet 12
         [q12, p12] = deal(aorta.lcca_outlet_12_flow, aorta.lcca_outlet_12_Pressure);
         N = length(p12) - 2;
         q12 = interp1(q12(:, 1), q12(:, 2), p12(2:N, 1));
@@ -101,6 +122,7 @@ switch (measurements)
         WK12 = scaler.inv_transform(opt.fit(fun, 0));
         Perr12 = 100.*opt.relerr(WK12, [aorta.RW112, aorta.RW212, aorta.CWK12])
 
+        % Determining the 3 WK parameters at outlet 13
         [q13, p13] = deal(aorta.lsub_outlet_13_flow, aorta.lsub_outlet_13_Pressure);
         N = length(p13) - 4;
         q13 = interp1(q13(:, 1), q13(:, 2), p13(2:N, 1));
@@ -112,6 +134,7 @@ switch (measurements)
         WK13 = scaler.inv_transform(opt.fit(fun, 0));
         Perr13 = 100.*opt.relerr(WK13, [aorta.RW113, aorta.RW213, aorta.CWK13])
 
+        % Determining the 3 WK parameters at outlet 15
         [q15, p15] = deal(aorta.sma_outlet_15_flow, aorta.sma_outlet_15_Pressure);
         N = length(p15) - 1;
         q15 = interp1(q15(:, 1), q15(:, 2), p15(2:N, 1));
@@ -123,6 +146,7 @@ switch (measurements)
         WK15 = scaler.inv_transform(opt.fit(fun, 0));
         Perr15 = 100.*opt.relerr(WK15, [aorta.RW115, aorta.RW215, aorta.CWK15])
 
+        % Determining the 3 WK parameters at outlet 16
         [q16, p16] = deal(aorta.rena_outlet_16_flow, aorta.rena_outlet_16_Pressure);
         N = length(p16) - 2;
         q16 = interp1(q16(:, 1), q16(:, 2), p16(1:N, 1));
@@ -136,6 +160,7 @@ switch (measurements)
 
         WK17 = WK16;
 
+        % Determining the 3 WK parameters at outlet 18
         [q18, p18] = deal(aorta.imma_outlet_18_flow, aorta.imma_outlet_18_Pressure);
         N = length(p18) - 3;
         q18 = interp1(q18(:, 1), q18(:, 2), p18(6:N, 1));
@@ -147,6 +172,7 @@ switch (measurements)
         WK18 = scaler.inv_transform(opt.fit(fun, 0));
         Perr18 = 100.*opt.relerr(WK18, [aorta.RW118, aorta.RW218, aorta.CWK18])
 
+        % Determining the 3 WK parameters at outlet 19
         [q19, p19] = deal(aorta.riliac_outlet_19_flow, aorta.riliac_outlet_19_Pressure);
         N = length(p19) - 2;
         q19 = interp1(q19(:, 1), q19(:, 2), p19(2:N, 1));
@@ -160,6 +186,7 @@ switch (measurements)
 
         WK20 = WK19;
 
+        % Setting the values of the WK parameters in the model
         [aorta.RW111, aorta.RW211, aorta.CWK11] = deal(WK11(1), WK11(2), WK11(3));
         [aorta.RW112, aorta.RW212, aorta.CWK12] = deal(WK12(1), WK12(2), WK12(3));
         [aorta.RW113, aorta.RW213, aorta.CWK13] = deal(WK13(1), WK13(2), WK13(3));
@@ -169,6 +196,7 @@ switch (measurements)
         [aorta.RW119, aorta.RW219, aorta.CWK19] = deal(WK19(1), WK19(2), WK19(3));
         problem.model = aorta;
 
+        % First optimisation to find 20 betas and WK parameters @ outlet 14
         params = [];
         for i=1:20
             params = [params sprintf("be%d", i)];
@@ -181,7 +209,8 @@ switch (measurements)
 
         problem.optimiser.x0Tol = 1;
         [xpred1, errP1, erract1, nguesses] = problem.fitmeasurements(0)
-
+        
+        % Second optimisation to refine estimate from before
         fullparams = params;
 
         for i=11:19
