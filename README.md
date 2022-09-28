@@ -43,6 +43,7 @@ format.
 ## Running Instructions
 
 To run any of the parameter estimation scripts install Matlab R2022a then
-run after setting measurements to `false` for determining the known parameters
-using the corresponding 1D outputs or `true` to estimate the same parameters
+run any of the scripts in the root directory. Set the variable
+`measurements` to `false` for determining the known parameters using the
+corresponding 1D outputs or `true` to estimate the same parameters
 by fitting the 1D model to the 3D numerical simulation results. 
