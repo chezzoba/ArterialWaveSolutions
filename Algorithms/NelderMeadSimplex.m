@@ -1,20 +1,23 @@
 classdef NelderMeadSimplex
-
+% NelderMeadSimplex Unconstrained Optimisation Algorithm using
+% Nelder Mead Simplex Search algorithm
     properties
-        TolX = 1e-50;
-        TolFun = 1e-50;
-        epochs = 3;
-        plt = true;
-        x0Tol = 5;
-        lenX = 6;
-        MaxFunEvals = 1000;
-        MaxIter = 1000;
+        TolX = 1e-50; % Minimum change in x allowed before breaking
+        TolFun = 1e-50; % Minimum change in function allowed before breaking
+        epochs = 3; % Number of optimisations performed in sequence
+        plt = true; % Plot function value vs iteration
+        x0Tol = 5; % Constraint of the suitability of the guess
+        lenX = 6; % Length of input vector
+        MaxFunEvals = 1000; % Maximum number of function evaluations allowed
+        MaxIter = 1000; % Maximum number of iterations allowed
     end
 
     methods
 
         function [xpred, nguesses] = fit(obj, fun, x0)
             %Fit - Optimise function fun, with an initial guess x0
+            % If x0 invalid the algorithm will try to guess x0 based on
+            % the value set in x0Tol
             if (obj.plt)
                 options = optimset('PlotFcns',@optimplotfval,...
                 'TolX', obj.TolX, 'TolFun', obj.TolFun,...

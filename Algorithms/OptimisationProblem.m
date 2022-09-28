@@ -1,19 +1,18 @@
 classdef OptimisationProblem
-    %OPTIMISATIONPROBLEM Summary of this class goes here
-    %   Detailed explanation goes here
+    %OPTIMISATIONPROBLEM Defines an optimisation problem
+    % Where the magic happens
     
     properties
-        model;
-        params;
-        scaler;
-        xact;
-        optimiser = ConOptimisation;
+        model; % Model (from Models/) used in the estimation technique.
+        params; % Array of names of parameters to be optimised
+        scaler; % MinMaxScaler object corresponding to params
+        xact; % Known parameter values
+        optimiser = ConOptimisation; % Optimiser used
     end
     
     methods
         function obj = OptimisationProblem(model, params, scaler)
-            %OPTIMISATIONPROBLEM Construct an instance of this class
-            %   Detailed explanation goes here
+            %OPTIMISATIONPROBLEM Initialise the problem
             [obj.model, obj.params, obj.scaler] = deal(model, params, scaler);
             obj.xact = zeros(1, length(params));
             for i = 1:length(params)
@@ -22,8 +21,7 @@ classdef OptimisationProblem
         end
         
         function [xpred, errP, erract, nguesses] = fitmeasurements(obj, x0)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
+            % Fits model to 3D numerical simulation measurements
             obj.optimiser.lenX = length(obj.params);
             fun = @(x) obj.model.measurementerr(x, obj.scaler, obj.params);
             erract = fun(obj.scaler.transform(obj.xact));
@@ -33,6 +31,7 @@ classdef OptimisationProblem
         end
 
         function [xpred, errP, erract, nguesses] = fitsolution(obj, x0)
+            % Fits model to model solutions that use the known parameters
             sol = obj.model.model();
             obj.optimiser.lenX = length(obj.params);
             fun = @(x) obj.model.globalerr(x, obj.scaler, obj.params, sol);

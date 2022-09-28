@@ -1,6 +1,5 @@
 classdef GradientDescent
-    %GradientDescent Summary of this class goes here
-    %   Detailed explanation goes here
+    %GradientDescent Stochastic gradient descent algorithm
     
     properties
         max_iter = 1e4; % Maximum number of iterations

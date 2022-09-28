@@ -1,18 +1,20 @@
 classdef ConOptimisation
-    %CONOPTIMISATION Summary of this class goes here
-    %   Detailed explanation goes here
-    
+    %CONOPTIMISATION Constrained Optimisation Algorithm using
+    % the interior point method
     properties
-        plt = true;
-        lenX = 6;
-        x0Tol = 1;
-        TolX = 1e-30;
-        TolFun = 1e-5;
-        StepTolerance = 1e-50;
+        plt = true; % Plot function value vs iteration
+        lenX = 6; % Length of input vector
+        x0Tol = 1; % Constraint of the suitability of the guess
+        TolX = 1e-30; % Minimum change in x allowed before breaking
+        TolFun = 1e-5; % Minimum change in function allowed before breaking
+        StepTolerance = 1e-50; % Minimum step size allowed before breaking
     end
     
     methods
         function [xpred, nguesses] = fit(obj, fun, x0)
+            % Optimises a function, fun with initial guess x0.
+            % If x0 invalid the algorithm will try to guess x0 based on
+            % the value set in x0Tol
             if (obj.plt)
                 options = optimoptions(@fmincon, 'PlotFcns', @optimplotfval,...
     'TolX', obj.TolX, 'TolFun', obj.TolFun, 'StepTolerance', obj.StepTolerance,...

@@ -1,6 +1,6 @@
 classdef MinMaxScaler
-    %UNTITLED Summary of this class goes here
-    %   Detailed explanation goes here
+    % Scaler that normalises any vector based in its minimum and maximum
+    % value
 
     properties
         xmin;
@@ -9,8 +9,7 @@ classdef MinMaxScaler
 
     methods
         function obj = MinMaxScaler(xmin, xmax)
-            %UNTITLED Construct an instance of this class
-            %   Detailed explanation goes here
+            %Initialise the scaler with min and max vector
             if length(xmin) ~= length(xmax)
                 error('Size of xmin has to be equal to that of xmax');
             end
@@ -19,8 +18,7 @@ classdef MinMaxScaler
         end
 
         function xprime = transform(obj, x)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
+            % transform x to 0 and 1
             if length(x) ~= length(obj.xmin)
                 error('Size of x has to be equal to that of xmin & xmax');
             end
@@ -28,8 +26,7 @@ classdef MinMaxScaler
         end
 
         function x = inv_transform(obj, xp)
-            %METHOD1 Summary of this method goes here
-            %   Detailed explanation goes here
+            %Inverse transform xp from 0 and 1
             if length(xp) ~= length(obj.xmin)
                 error('Size of xp has to be equal to that of xmin & xmax');
             end

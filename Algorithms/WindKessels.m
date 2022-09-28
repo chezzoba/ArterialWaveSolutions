@@ -1,4 +1,6 @@
 function xpred = WindKessels(Pouts, Qouts)
+    % Determine the windkessel parameters using the pressure (Pouts) and
+    % volume flow rate (Qouts) at the outlet in question
     N = min([length(Pouts), length(Qouts)]) - 1;
     flow = interp1(Qouts(:, 1), Qouts(:, 2), Pouts(1:N, 1));
     
